@@ -10,6 +10,7 @@ builder.Services.AddHttpClient<HealthCheckService>();
 builder.Services.AddHostedService<HealthCheckService>();
 builder.Services.AddDbContext<DashboardDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("Robert1")));
 builder.Services.AddScoped<DnsUpdateService>();
+builder.Services.AddMemoryCache();
 
 WebApplication app = builder.Build();
 app.UseRouting();
