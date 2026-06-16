@@ -1,22 +1,14 @@
-var builder = WebApplication.CreateBuilder(args);
+using Dashboard.Services;
 
-// Add services to the container.
+WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
+builder.Services.AddSingleton<StatusStore>();
+builder.Services.AddHttpClient<HealthCheckService>();
+builder.Services.AddHostedService<HealthCheckService>();
 
-var app = builder.Build();
-
-// Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment())
-{
-    app.UseExceptionHandler("/Error");
-}
-
+WebApplication app = builder.Build();
 app.UseRouting();
-
 app.UseAuthorization();
-
 app.MapStaticAssets();
-app.MapRazorPages()
-   .WithStaticAssets();
-
+app.MapRazorPages().WithStaticAssets();
 app.Run();

@@ -1,0 +1,24 @@
+﻿@model Dashboard.Models.ServiceCard
+@{
+    string badgeClass = Model.Status == null ? "bg-secondary" : Model.Status.IsOnline ? "bg-success" : "bg-danger";
+    string badgeText = Model.Status == null ? "Pending" : Model.Status.IsOnline ? "Online" : "Offline";
+    string displayUrl = Model.Service.Url.Replace("https://", "").Replace("http://", "");
+}
+
+<a href="@Model.Service.Url" target="_blank" rel="noopener noreferrer" class="card text-decoration-none text-reset d-block" style="cursor: pointer;">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-start mb-2">
+            <h6 class="card-title mb-0">@Model.Service.Name</h6>
+            <span class="badge @badgeClass">@badgeText</span>
+        </div>
+        <p class="text-secondary small mb-1">@Model.Service.Type</p>
+        <p class="small mb-0 text-secondary">@displayUrl</p>
+        @if (Model.Status != null)
+        {
+            <div class="mt-2 text-secondary" style="font-size: 0.75rem;">
+                <span>@Model.Status.ResponseTimeMs ms</span>
+                <span class="ms-2">@Model.Status.LastChecked.ToString("HH:mm:ss") UTC</span>
+            </div>
+        }
+    </div>
+</a>

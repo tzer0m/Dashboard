@@ -1,10 +1,49 @@
 ﻿@page
 @model IndexModel
+@using Dashboard.Models
 @{
-    ViewData["Title"] = "Home page";
+    ViewData["Title"] = "DNS Status";
+    Dictionary<string, List<ServiceEntry>> singleService = Model.ServicesByDevice.Where(d => d.Value.Count == 1).OrderBy(d => d.Key).ToDictionary(d => d.Key, d => d.Value.OrderBy(s => s.Name).ToList());
+    Dictionary<string, List<ServiceEntry>> multiService = Model.ServicesByDevice.Where(d => d.Value.Count > 1).OrderBy(d => d.Key).ToDictionary(d => d.Key, d => d.Value.OrderBy(s => s.Name).ToList());
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<h4 class="mb-4 text-secondary">DNS Status</h4>
+
+<div class="row g-3 mb-5">
+    @foreach (KeyValuePair<string, List<ServiceEntry>> device in singleService)
+    {
+        <div class="col-12 col-md-4">
+            <div class="mb-2">
+                <span class="fw-medium">@device.Key</span>
+                <span class="text-secondary small ms-2">@device.Value.First().LocalIp</span>
+            </div>
+            @await Html.PartialAsync("_ServiceCard", new ServiceCard
+            {
+                Service = device.Value.First(),
+                Status = Model.Statuses.GetValueOrDefault(device.Value.First().Name)
+            })
+        </div>
+    }
 </div>
+
+@foreach (KeyValuePair<string, List<ServiceEntry>> device in multiService)
+{
+    <div class="mb-4 mt-5">
+        <div class="mb-2">
+            <span class="fw-medium">@device.Key</span>
+            <span class="text-secondary small ms-2">@device.Value.First().LocalIp</span>
+        </div>
+        <div class="row g-3">
+            @foreach (ServiceEntry service in device.Value)
+            {
+                <div class="col-12 col-md-4">
+                    @await Html.PartialAsync("_ServiceCard", new ServiceCard
+                    {
+                        Service = service,
+                        Status = Model.Statuses.GetValueOrDefault(service.Name)
+                    })
+                </div>
+            }
+        </div>
+    </div>
+}
