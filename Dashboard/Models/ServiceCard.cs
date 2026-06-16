@@ -14,4 +14,9 @@ public class ServiceCard
     /// Gets or sets the latest health check status, or null if not yet checked.
     /// </summary>
     public ServiceStatus? Status { get; set; }
+
+    /// <summary>
+    /// Gets or sets an optional favicon URL override.
+    /// </summary>
+    public string? FaviconUrl { get; set; }
 }

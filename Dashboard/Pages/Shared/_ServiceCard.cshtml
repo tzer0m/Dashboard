@@ -3,12 +3,13 @@
     string badgeClass = Model.Status == null ? "bg-secondary" : Model.Status.IsOnline ? "bg-success" : "bg-danger";
     string badgeText = Model.Status == null ? "Pending" : Model.Status.IsOnline ? "Online" : "Offline";
     string displayUrl = Model.Service.Url.Replace("https://", "").Replace("http://", "");
+    string faviconSrc = Model.FaviconUrl ?? $"/Favicon?url={Uri.EscapeDataString(Model.Service.Url)}";
 }
 
 <a href="@Model.Service.Url" target="_blank" rel="noopener noreferrer" class="card text-decoration-none text-reset d-block" style="cursor: pointer;">
     <div class="card-body">
         <div class="d-flex align-items-center gap-2 mb-2">
-            <img src="/Favicon?url=@Uri.EscapeDataString(Model.Service.Url)" width="16" height="16" onerror="this.style.display='none'" />
+            <img src="@faviconSrc" width="16" height="16" onerror="this.style.display='none'" />
             <h6 class="card-title mb-0">@Model.Service.Name</h6>
             <span class="badge @badgeClass ms-auto">@badgeText</span>
         </div>
