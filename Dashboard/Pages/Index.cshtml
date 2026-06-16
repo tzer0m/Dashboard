@@ -2,12 +2,28 @@
 @model IndexModel
 @using Dashboard.Models
 @{
-    ViewData["Title"] = "DNS Status";
+    ViewData["Title"] = "Dashboard";
     Dictionary<string, List<ServiceEntry>> singleService = Model.ServicesByDevice.Where(d => d.Value.Count == 1).OrderBy(d => d.Key).ToDictionary(d => d.Key, d => d.Value.OrderBy(s => s.Name).ToList());
     Dictionary<string, List<ServiceEntry>> multiService = Model.ServicesByDevice.Where(d => d.Value.Count > 1).OrderBy(d => d.Key).ToDictionary(d => d.Key, d => d.Value.OrderBy(s => s.Name).ToList());
 }
 
-<h4 class="mb-4 text-secondary">DNS Status</h4>
+<div class="mb-5">
+    @if (Model.DnsUpdates.Any())
+    {
+        <div class="row g-3">
+            @foreach (DnsUpdate update in Model.DnsUpdates)
+            {
+                bool isCurrent = update == Model.DnsUpdates.First();
+                <div class="col-12 col-md">
+                    <div class="px-3 py-2 @(isCurrent ? "" : "opacity-50")">
+                        <div class="fw-medium">@update.IpAddress</div>
+                        <div class="text-secondary small">@update.RecordedAt.ToString("yyyy-MM-dd HH:mm") UTC</div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
 
 <div class="row g-3 mb-5">
     @foreach (KeyValuePair<string, List<ServiceEntry>> device in singleService)

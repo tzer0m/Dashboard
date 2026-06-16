@@ -39,4 +39,10 @@ public class ServiceEntry
     /// Gets or sets the local port the service runs on.
     /// </summary>
     public int? LocalPort { get; set; }
+
+    /// <summary>
+    /// Gets or sets whether the service requires authentication.
+    /// A 401 response will be treated as online if true.
+    /// </summary>
+    public bool AuthRequired { get; set; } = false;
 }

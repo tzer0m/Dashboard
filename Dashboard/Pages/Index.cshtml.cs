@@ -12,10 +12,12 @@ namespace Dashboard.Pages;
 /// </remarks>
 /// <param name="statusStore">The singleton status store.</param>
 /// <param name="configuration">The app configuration.</param>
-public class IndexModel(StatusStore statusStore, IConfiguration configuration) : PageModel
+/// <param name="dnsUpdateService">The service for reading DNS update records.</param>
+public class IndexModel(StatusStore statusStore, IConfiguration configuration, DnsUpdateService dnsUpdateService) : PageModel
 {
     private readonly StatusStore StatusStore = statusStore;
     private readonly IConfiguration Configuration = configuration;
+    private readonly DnsUpdateService DnsUpdateService = dnsUpdateService;
 
     /// <summary>
     /// Services grouped by device name, populated on GET.
@@ -28,12 +30,18 @@ public class IndexModel(StatusStore statusStore, IConfiguration configuration) :
     public IReadOnlyDictionary<string, ServiceStatus> Statuses { get; set; } = new Dictionary<string, ServiceStatus>();
 
     /// <summary>
-    /// Loads services from config and reads cached statuses from the store.
+    /// The most recent DNS update records.
     /// </summary>
-    public void OnGet()
+    public List<DnsUpdate> DnsUpdates { get; set; } = [];
+
+    /// <summary>
+    /// Loads services from config, reads cached statuses and fetches DNS update records.
+    /// </summary>
+    public async Task OnGetAsync()
     {
         List<ServiceEntry> services = Configuration.GetSection("Services").Get<List<ServiceEntry>>() ?? [];
         ServicesByDevice = services.GroupBy(s => s.Device).ToDictionary(g => g.Key, g => g.ToList());
         Statuses = StatusStore.GetAll();
+        DnsUpdates = await DnsUpdateService.GetRecentAsync();
     }
 }

@@ -1,4 +1,6 @@
 ﻿using Dashboard.Models;
+using System.Diagnostics;
+using System.Net;
 
 namespace Dashboard.Services;
 
@@ -60,20 +62,22 @@ public class HealthCheckService : BackgroundService
     /// <param name="cancellationToken">Token that signals when the host is shutting down.</param>
     private async Task PingServiceAsync(ServiceEntry service, CancellationToken cancellationToken)
     {
-        System.Diagnostics.Stopwatch stopwatch = System.Diagnostics.Stopwatch.StartNew();
+        Stopwatch stopwatch = Stopwatch.StartNew();
 
         try
         {
             HttpResponseMessage response = await HttpClient.GetAsync(service.Url, cancellationToken);
             stopwatch.Stop();
 
+            bool isOnline = response.IsSuccessStatusCode || (service.AuthRequired && response.StatusCode == HttpStatusCode.Unauthorized);
+
             StatusStore.Set(service.Name, new ServiceStatus
             {
-                IsOnline = response.IsSuccessStatusCode,
+                IsOnline = isOnline,
                 StatusCode = (int)response.StatusCode,
                 ResponseTimeMs = stopwatch.ElapsedMilliseconds,
                 LastChecked = DateTime.UtcNow,
-                Error = response.IsSuccessStatusCode ? null : $"HTTP {(int)response.StatusCode}"
+                Error = isOnline ? null : $"HTTP {(int)response.StatusCode}"
             });
         }
         catch (Exception ex)
