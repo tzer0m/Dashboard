@@ -39,9 +39,11 @@ body {
     font-size: 1.5rem;
 }
 
-.container {
-    width: 60%;
-    max-width: none;
-    margin-left: auto;
-    margin-right: auto;
+@media (min-width: 768px) {
+    .container {
+        width: 60%;
+        max-width: none;
+        margin-left: auto;
+        margin-right: auto;
+    }
 }
