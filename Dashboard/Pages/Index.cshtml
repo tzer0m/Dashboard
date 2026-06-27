@@ -36,7 +36,8 @@
             @await Html.PartialAsync("_ServiceCard", new ServiceCard
             {
                 Service = device.Value.First(),
-                Status = Model.Statuses.GetValueOrDefault(device.Value.First().Name)
+                Status = Model.Statuses.GetValueOrDefault(device.Value.First().Name),
+                FaviconUrl = device.Value.First().FaviconUrl
             })
         </div>
     }
