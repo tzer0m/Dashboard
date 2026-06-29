@@ -32,7 +32,13 @@
                 <span class="badge @badgeClass">@badgeText</span>
             </span>
         </div>
-        <p class="text-secondary small mb-1">@Model.Service.Type</p>
+        <div class="d-flex justify-content-between align-items-center mb-1">
+            <p class="text-secondary small mb-0">@Model.Service.Type</p>
+            @if (!string.IsNullOrEmpty(Model.Service.RepoName))
+            {
+                <img src="https://img.shields.io/github/actions/workflow/status/@(Model.Service.RepoName)/deploy.yml?branch=master&style=flat-square&label=deploy&labelColor=212529&logo=github&logoColor=8b949e" alt="Deploy status">
+            }
+        </div>
         <p class="small fs-6 mb-0 text-secondary">@displayUrl</p>
         @if (Model.Status != null)
         {
