@@ -37,7 +37,7 @@
             @if (!string.IsNullOrEmpty(Model.Service.RepoName))
             {
                 long bucket = DateTimeOffset.UtcNow.ToUnixTimeSeconds() / 60;
-                string innerUrl = $"https://dashboard.tzer0m.co.uk/Badge?repo={Model.Service.RepoName}&_t={bucket}";
+                string innerUrl = $"https://tzer0m.co.uk/Badge?repo={Model.Service.RepoName}&_t={bucket}";
                 string badgeUrl = $"https://img.shields.io/endpoint?url={Uri.EscapeDataString(innerUrl)}&style=flat-square&labelColor=212529&logo=github&logoColor=8b949e";
                 <img src="@badgeUrl" alt="Deploy status">
             }
