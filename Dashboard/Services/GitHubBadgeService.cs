@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using Dashboard.Models;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace Dashboard.Services;
@@ -16,11 +17,12 @@ public class GitHubBadgeService(HttpClient httpClient, IConfiguration configurat
     /// <param name="ownerRepo">The repository in "owner/repo" form.</param>
     /// <param name="workflowFile">The workflow filename, e.g. "deploy.yml".</param>
     /// <param name="branch">The branch to check.</param>
-    public async Task<(string Message, string Color)> GetStatusAsync(string ownerRepo, string workflowFile, string branch)
+    public async Task<GitHubBadgeStatus> GetStatusAsync(string ownerRepo, string workflowFile, string branch)
     {
         string cacheKey = $"badge:{ownerRepo}:{workflowFile}:{branch}";
 
-        if (memoryCache.TryGetValue(cacheKey, out (string Message, string Color) cached)) return cached;
+        if (memoryCache.TryGetValue(cacheKey, out GitHubBadgeStatus? cached) && cached is not null)
+            return cached;
 
         string token = configuration["GitHub:AccessToken"] ?? string.Empty;
         string url = $"https://api.github.com/repos/{ownerRepo}/actions/workflows/{workflowFile}/runs?branch={branch}&per_page=1";
@@ -33,11 +35,11 @@ public class GitHubBadgeService(HttpClient httpClient, IConfiguration configurat
 
         HttpResponseMessage response = await httpClient.SendAsync(request);
 
-        (string Message, string Color) result;
+        GitHubBadgeStatus result;
 
         if (!response.IsSuccessStatusCode)
         {
-            result = ("unknown", "9e9e9e");
+            result = new GitHubBadgeStatus { Message = "unknown", Color = "9e9e9e" };
         }
         else
         {
@@ -48,7 +50,7 @@ public class GitHubBadgeService(HttpClient httpClient, IConfiguration configurat
 
             if (!runs.MoveNext())
             {
-                result = ("unknown", "9e9e9e");
+                result = new GitHubBadgeStatus { Message = "unknown", Color = "9e9e9e" };
             }
             else
             {
@@ -57,12 +59,12 @@ public class GitHubBadgeService(HttpClient httpClient, IConfiguration configurat
 
                 if (status != "completed")
                 {
-                    result = ("running", "dfb317");
+                    result = new GitHubBadgeStatus { Message = "running", Color = "dfb317" };
                 }
                 else
                 {
                     string conclusion = latestRun.GetProperty("conclusion").GetString() ?? string.Empty;
-                    result = conclusion == "success" ? ("passing", "198754") : ("failing", "dc3545");
+                    result = conclusion == "success" ? new GitHubBadgeStatus { Message = "passing", Color = "198754" } : new GitHubBadgeStatus { Message = "failing", Color = "dc3545" };
                 }
             }
         }

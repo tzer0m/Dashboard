@@ -1,3 +1,4 @@
+using Dashboard.Models;
 using Dashboard.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -19,14 +20,14 @@ public class BadgeModel(GitHubBadgeService gitHubBadgeService) : PageModel
     {
         if (string.IsNullOrEmpty(repo)) return BadRequest();
 
-        (string message, string color) = await gitHubBadgeService.GetStatusAsync(repo, "deploy.yml", "master");
+        GitHubBadgeStatus status = await gitHubBadgeService.GetStatusAsync(repo, "deploy.yml", "master");
 
         return new JsonResult(new
         {
             schemaVersion = 1,
             label = "deploy",
-            message,
-            color
+            message = status.Message,
+            color = status.Color
         });
     }
 }
