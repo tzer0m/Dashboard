@@ -20,7 +20,8 @@ public class GitHubBadgeService(HttpClient httpClient, IConfiguration configurat
     /// <param name="ownerRepo">The repository in "owner/repo" form.</param>
     /// <param name="workflowFile">The workflow filename, e.g. "deploy.yml".</param>
     /// <param name="branch">The branch to check.</param>
-    public async Task<GitHubBadgeStatus> GetStatusAsync(string ownerRepo, string workflowFile, string branch)
+    /// <param name="cancellationToken">Token that signals when the request is aborted.</param>
+    public async Task<GitHubBadgeStatus> GetStatusAsync(string ownerRepo, string workflowFile, string branch, CancellationToken cancellationToken)
     {
         // Check if the status is already cached
         string cacheKey = $"badge:{ownerRepo}:{workflowFile}:{branch}";
@@ -39,7 +40,7 @@ public class GitHubBadgeService(HttpClient httpClient, IConfiguration configurat
         request.Headers.Add("User-Agent", "Dashboard");
 
         // Send the request and get the response
-        HttpResponseMessage response = await httpClient.SendAsync(request);
+        HttpResponseMessage response = await httpClient.SendAsync(request, cancellationToken);
 
         // If the response is not successful, return a default "unknown" status
         GitHubBadgeStatus result;
@@ -50,7 +51,7 @@ public class GitHubBadgeService(HttpClient httpClient, IConfiguration configurat
         else
         {
             // Parse the response JSON to get the latest run status
-            string body = await response.Content.ReadAsStringAsync();
+            string body = await response.Content.ReadAsStringAsync(cancellationToken);
             using JsonDocument document = JsonDocument.Parse(body);
             JsonElement.ArrayEnumerator runs = document.RootElement.GetProperty("workflow_runs").EnumerateArray();
 

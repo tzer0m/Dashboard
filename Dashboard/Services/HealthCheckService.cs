@@ -26,6 +26,11 @@ public class HealthCheckService : BackgroundService
     private readonly List<ServiceEntry> Services;
 
     /// <summary>
+    /// The configured service entries being monitored.
+    /// </summary>
+    public IReadOnlyList<ServiceEntry> ServiceEntries => Services;
+
+    /// <summary>
     /// Logger used to log information and errors.
     /// </summary>
     private readonly ILogger<HealthCheckService> Logger;
