@@ -40,7 +40,7 @@ public class IndexModel(StatusStore statusStore, IConfiguration configuration, D
     public async Task OnGetAsync()
     {
         List<ServiceEntry> services = Configuration.GetSection("Services").Get<List<ServiceEntry>>() ?? [];
-        ServicesByDevice = services.GroupBy(s => s.Device).ToDictionary(g => g.Key, g => g.ToList());
+        ServicesByDevice = services.GroupBy(s => s.LocalIp).ToDictionary(g => g.Key, g => g.ToList());
         Statuses = StatusStore.GetAll();
         DnsUpdates = await DnsUpdateService.GetRecentAsync();
     }
