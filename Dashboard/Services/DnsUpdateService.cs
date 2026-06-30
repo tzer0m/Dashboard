@@ -13,6 +13,9 @@ namespace Dashboard.Services;
 /// <param name="context">The database context.</param>
 public class DnsUpdateService(DashboardDbContext context)
 {
+    /// <summary>
+    /// Database context for accessing DNS update records.
+    /// </summary>
     private readonly DashboardDbContext Context = context;
 
     /// <summary>

@@ -18,10 +18,12 @@ public class BadgeModel(GitHubBadgeService gitHubBadgeService) : PageModel
     /// <param name="repo">The repository in "owner/repo" form.</param>
     public async Task<IActionResult> OnGetAsync(string repo)
     {
-        if (string.IsNullOrEmpty(repo)) return BadRequest();
+        // Validate the repo format
+        if (string.IsNullOrEmpty(repo)) 
+            return BadRequest();
 
+        // Get the badge information from the GitHubBadgeService and return it as JSON
         GitHubBadgeStatus status = await gitHubBadgeService.GetStatusAsync(repo, "deploy.yml", "master");
-
         return new JsonResult(new
         {
             schemaVersion = 1,

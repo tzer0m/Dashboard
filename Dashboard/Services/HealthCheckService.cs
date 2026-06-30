@@ -10,10 +10,29 @@ namespace Dashboard.Services;
 /// </summary>
 public class HealthCheckService : BackgroundService
 {
+    /// <summary>
+    /// Http client used to send requests to the services.
+    /// </summary>
     private readonly HttpClient HttpClient;
+
+    /// <summary>
+    /// Memory cache used to store the results of the health checks.
+    /// </summary>
     private readonly StatusStore StatusStore;
+
+    /// <summary>
+    /// List of services to monitor, loaded from configuration.
+    /// </summary>
     private readonly List<ServiceEntry> Services;
+
+    /// <summary>
+    /// Logger used to log information and errors.
+    /// </summary>
     private readonly ILogger<HealthCheckService> Logger;
+
+    /// <summary>
+    /// Interval between health checks, in milliseconds. This is set to 60 seconds unless overridden.
+    /// </summary>
     private readonly int IntervalSeconds;
 
     /// <summary>
@@ -63,14 +82,14 @@ public class HealthCheckService : BackgroundService
     private async Task PingServiceAsync(ServiceEntry service, CancellationToken cancellationToken)
     {
         Stopwatch stopwatch = Stopwatch.StartNew();
-
         try
         {
+            // Send a GET request to the service URL
             HttpResponseMessage response = await HttpClient.GetAsync(service.Url, cancellationToken);
             stopwatch.Stop();
 
+            // Store the result in the status store
             bool isOnline = response.IsSuccessStatusCode || (service.AuthRequired && response.StatusCode == HttpStatusCode.Unauthorized);
-
             StatusStore.Set(service.Name, new ServiceStatus
             {
                 IsOnline = isOnline,
@@ -82,9 +101,11 @@ public class HealthCheckService : BackgroundService
         }
         catch (Exception ex)
         {
+            // Log the error and store the failure in the status store
             stopwatch.Stop();
             Logger.LogWarning("Health check failed for {ServiceName}: {Message}", service.Name, ex.Message);
 
+            // Store the failure in the status store
             StatusStore.Set(service.Name, new ServiceStatus
             {
                 IsOnline = false,
