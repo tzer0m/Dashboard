@@ -41,7 +41,7 @@
     {
         <div class="service-col">
             <div class="mb-2">
-                <span class="fw-medium">@device.Key</span>
+                <span class="fw-medium">@device.Value.First().Device</span>
                 <span class="text-secondary small ms-2">@device.Value.First().LocalIp</span>
             </div>
             @await Html.PartialAsync("_ServiceCard", new ServiceCard
@@ -58,7 +58,7 @@
 {
     <div class="mb-4 mt-5">
         <div class="mb-2">
-            <span class="fw-medium">@device.Key</span>
+            <span class="fw-medium">@device.Value.First().Device</span>
             <span class="text-secondary small ms-2">@device.Value.First().LocalIp</span>
         </div>
         <div class="row g-3">
