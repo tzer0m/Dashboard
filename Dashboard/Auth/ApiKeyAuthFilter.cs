@@ -18,6 +18,10 @@ public sealed partial class ApiKeyAuthFilter(IConfiguration configuration, ILogg
     /// The expected API key value, read from configuration.
     /// </summary>
     private readonly IConfiguration Configuration = configuration;
+
+    /// <summary>
+    /// The logger instance for logging authentication events.
+    /// </summary>
     private readonly ILogger<ApiKeyAuthFilter> Logger = logger;
 
     /// <summary>
