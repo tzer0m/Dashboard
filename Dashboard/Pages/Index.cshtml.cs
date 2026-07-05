@@ -32,6 +32,7 @@ public class IndexModel(StatusStore statusStore, IConfiguration configuration) :
     /// </summary>
     public async Task OnGetAsync()
     {
+        Response.Headers.CacheControl = "no-store";
         List<ServiceEntry> services = Configuration.GetSection("Services").Get<List<ServiceEntry>>() ?? [];
         ServicesByDevice = services.GroupBy(s => s.LocalIp).ToDictionary(g => g.Key, g => g.ToList());
         Statuses = StatusStore.GetAll();
