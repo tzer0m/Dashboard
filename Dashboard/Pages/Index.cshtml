@@ -7,7 +7,8 @@
     Dictionary<string, List<ServiceEntry>> multiService = Model.ServicesByDevice.Where(d => d.Value.Count > 1).OrderBy(d => d.Key).ToDictionary(d => d.Key, d => d.Value.OrderBy(s => s.Name).ToList());
 }
 
-<div class="d-flex mb-2">
+<div class="d-flex gap-3 mb-2">
+    <span id="local-clock" class="text-secondary small"></span>
     <span id="utc-clock" class="text-secondary small"></span>
 </div>
 

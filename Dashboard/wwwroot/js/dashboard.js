@@ -1,6 +1,4 @@
-﻿/**
- * Updates the UTC clock display in the dashboard header, ticking every second. Purely client-side — no network requests involved.
- */
+﻿// Updates the UTC clock display in the dashboard header, ticking every second. Purely client-side — no network requests involved.
 function updateUtcClock() {
     const clockEl = document.getElementById('utc-clock');
     if (!clockEl) return;
@@ -9,8 +7,24 @@ function updateUtcClock() {
     clockEl.textContent = `${now.toISOString().substring(11, 19)} UTC`;
 }
 
-setInterval(updateUtcClock, 1000);
+// Uses the browser's local timezone, purely client-side.
+function updateLocalClock() {
+    const clockEl = document.getElementById('local-clock');
+    if (!clockEl) return;
+
+    const now = new Date();
+    const parts = now.toLocaleTimeString('en-GB', { hour12: false, timeZoneName: 'short' });
+    clockEl.textContent = parts;
+}
+
+// Updates both clocks every second.
+setInterval(() => {
+    updateUtcClock();
+    updateLocalClock();
+}, 1000);
+
 updateUtcClock();
+updateLocalClock();
 
 // Active SignalR connection to the ServiceStatusHub. Initialised on page load, used to receive live status pushes and to invoke manual refresh requests.
 let connection = null;
