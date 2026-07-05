@@ -7,6 +7,10 @@
     Dictionary<string, List<ServiceEntry>> multiService = Model.ServicesByDevice.Where(d => d.Value.Count > 1).OrderBy(d => d.Key).ToDictionary(d => d.Key, d => d.Value.OrderBy(s => s.Name).ToList());
 }
 
+<div class="d-flex mb-2">
+    <span id="utc-clock" class="text-secondary small"></span>
+</div>
+
 <div class="row g-3 mb-5 mt-3">
     @foreach (KeyValuePair<string, List<ServiceEntry>> device in singleService)
     {

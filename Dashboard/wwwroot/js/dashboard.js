@@ -1,4 +1,18 @@
-﻿// Active SignalR connection to the ServiceStatusHub. Initialised on page load, used to receive live status pushes and to invoke manual refresh requests.
+﻿/**
+ * Updates the UTC clock display in the dashboard header, ticking every second. Purely client-side — no network requests involved.
+ */
+function updateUtcClock() {
+    const clockEl = document.getElementById('utc-clock');
+    if (!clockEl) return;
+
+    const now = new Date();
+    clockEl.textContent = `${now.toISOString().substring(11, 19)} UTC`;
+}
+
+setInterval(updateUtcClock, 1000);
+updateUtcClock();
+
+// Active SignalR connection to the ServiceStatusHub. Initialised on page load, used to receive live status pushes and to invoke manual refresh requests.
 let connection = null;
 
 // Establishes the SignalR connection to the dashboard's status hub. Automatically reconnects if the connection drops (e.g. brief network blip), and registers the handler for incoming status updates.
