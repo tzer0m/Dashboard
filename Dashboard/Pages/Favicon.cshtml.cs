@@ -53,7 +53,10 @@ public partial class FaviconModel(IHttpClientFactory httpClientFactory, ILogger<
         // Check if the favicon is already cached
         string cacheKey = $"favicon:{url}";
         if (MemoryCache.TryGetValue(cacheKey, out (byte[] bytes, string contentType) cached))
+        {
+            Response.Headers.CacheControl = "public, max-age=86400";
             return File(cached.bytes, cached.contentType);
+        }
 
         // Fetch the favicon from the specified URL
         try
@@ -81,6 +84,7 @@ public partial class FaviconModel(IHttpClientFactory httpClientFactory, ILogger<
                         byte[] bytes = await faviconResponse.Content.ReadAsByteArrayAsync();
                         string contentType = faviconResponse.Content.Headers.ContentType?.MediaType ?? "image/x-icon";
                         MemoryCache.Set(cacheKey, (bytes, contentType), TimeSpan.FromHours(24));
+                        Response.Headers.CacheControl = "public, max-age=86400";
                         return File(bytes, contentType);
                     }
                 }
@@ -92,6 +96,7 @@ public partial class FaviconModel(IHttpClientFactory httpClientFactory, ILogger<
             {
                 byte[] bytes = await icoResponse.Content.ReadAsByteArrayAsync();
                 MemoryCache.Set(cacheKey, (bytes, "image/x-icon"), TimeSpan.FromHours(24));
+                Response.Headers.CacheControl = "public, max-age=86400";
                 return File(bytes, "image/x-icon");
             }
         }
@@ -101,6 +106,7 @@ public partial class FaviconModel(IHttpClientFactory httpClientFactory, ILogger<
         }
 
         // If all attempts fail, return a 404 Not Found response
+        Response.Headers.CacheControl = "public, max-age=3600"; // cache the failure for an hour, not 24h, in case it's fixed
         return NotFound();
     }
 }
