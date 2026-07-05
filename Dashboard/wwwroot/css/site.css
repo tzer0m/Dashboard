@@ -66,19 +66,29 @@ body {
 }
 
 .refresh-btn {
-    background: rgba(0, 0, 0, 0.5);
+    background: none;
     border: none;
-    border-radius: 4px;
-    color: white;
-    padding: 4px;
+    color: inherit;
+    padding: 0;
+    width: 18px;
+    height: 18px;
     display: flex;
+    align-items: center;
+    justify-content: center;
     z-index: 10;
     cursor: pointer;
+    opacity: 0.6;
+    transition: opacity 0.15s ease, transform 0.15s ease;
 }
+
+    .refresh-btn:hover {
+        opacity: 1;
+        transform: scale(1.15);
+    }
 
     .refresh-btn:disabled {
         cursor: default;
-        opacity: 0.6;
+        opacity: 0.4;
     }
 
     .refresh-btn.checking .refresh-icon {
