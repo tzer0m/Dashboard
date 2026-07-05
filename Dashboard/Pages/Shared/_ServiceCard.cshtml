@@ -58,18 +58,15 @@
                 }
             </div>
             <p class="small fs-6 mb-0 text-secondary">@displayUrl</p>
-            @if (Model.Status != null)
-            {
-                <div class="mt-2 text-secondary" style="font-size: 0.75rem;">
-                    <span class="response-time @(Model.Status.ResponseTimeMs <= 200 ? "response-time-fast" : Model.Status.ResponseTimeMs <= 500 ? "response-time-moderate" : "response-time-slow")">@Model.Status.ResponseTimeMs ms</span>
-                    <span class="status-code ms-2 @(Model.Status.StatusCode == null ? "d-none" : "")">HTTP @Model.Status.StatusCode</span>
-                    @if (Model.Service.LocalPort != null)
-                    {
-                        <span class="ms-2">@Model.Service.LocalPort</span>
-                    }
-                    <span class="last-checked ms-2">@Model.Status.LastChecked.ToString("HH:mm:ss") UTC</span>
-                </div>
-            }
+            <div class="mt-2 text-secondary" style="font-size: 0.75rem;">
+                <span class="response-time @(Model.Status != null ? (Model.Status.ResponseTimeMs <= 200 ? "response-time-fast" : Model.Status.ResponseTimeMs <= 500 ? "response-time-moderate" : "response-time-slow") : "")">@(Model.Status != null ? $"{Model.Status.ResponseTimeMs} ms" : "—")</span>
+                <span class="status-code ms-2 @(Model.Status?.StatusCode == null ? "d-none" : "")">HTTP @Model.Status?.StatusCode</span>
+                @if (Model.Service.LocalPort != null)
+                {
+                    <span class="ms-2">@Model.Service.LocalPort</span>
+                }
+                <span class="last-checked ms-2">@(Model.Status != null ? Model.Status.LastChecked.ToString("HH:mm:ss") + " UTC" : "—")</span>
+            </div>
         </div>
     </a>
 </div>
