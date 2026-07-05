@@ -63,15 +63,10 @@ function handleStatusUpdate(status) {
         else responseTimeEl.classList.add('response-time-slow');
     }
 
-    // Status code, only shown when present
+    // Status code — shows the HTTP status if present, or a placeholder otherwise
     const statusCodeEl = card.querySelector('.status-code');
     if (statusCodeEl) {
-        if (status.statusCode != null) {
-            statusCodeEl.textContent = `HTTP ${status.statusCode}`;
-            statusCodeEl.classList.remove('d-none');
-        } else {
-            statusCodeEl.classList.add('d-none');
-        }
+        statusCodeEl.textContent = status.statusCode != null ? `HTTP ${status.statusCode}` : '—';
     }
 
     // Last-checked timestamp, formatted the same way as the server-rendered HH:mm:ss
