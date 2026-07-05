@@ -1,6 +1,7 @@
 ﻿using Dashboard.Hubs;
 using Dashboard.Models;
 using Microsoft.AspNetCore.SignalR;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Net;
 
@@ -23,6 +24,11 @@ public class HealthCheckService(IHttpClientFactory httpClientFactory, StatusStor
     /// Http client used to send requests to the services.
     /// </summary>
     private readonly HttpClient HttpClient = httpClientFactory.CreateClient("HealthCheckService");
+
+    /// <summary>
+    /// Http client used to send Ting notifications.
+    /// </summary>
+    private readonly HttpClient TingHttpClient = httpClientFactory.CreateClient();
 
     /// <summary>
     /// Memory cache used to store the results of the health checks.
@@ -53,6 +59,21 @@ public class HealthCheckService(IHttpClientFactory httpClientFactory, StatusStor
     /// Interval between health checks, in milliseconds. This is set to 60 seconds unless overridden.
     /// </summary>
     private readonly int IntervalSeconds = configuration.GetValue("HealthCheck:IntervalSeconds", 60);
+
+    /// <summary>
+    /// API key for the Ting notification endpoint on api.tzer0m.co.uk.
+    /// </summary>
+    private readonly string TingApiKey = configuration.GetValue("Ting:ApiKey", string.Empty) ?? string.Empty;
+
+    /// <summary>
+    /// Number of consecutive failures required before sending a "down" notification.
+    /// </summary>
+    private readonly int FailureThreshold = configuration.GetValue("Ting:FailureThreshold", 2);
+
+    /// <summary>
+    /// Per-service consecutive-failure state, keyed by service name.
+    /// </summary>
+    private readonly ConcurrentDictionary<string, ServiceHealthState> HealthStates = new();
 
     /// <summary>
     /// Executes the background ping loop. Services are checked one at a time,
@@ -97,7 +118,7 @@ public class HealthCheckService(IHttpClientFactory httpClientFactory, StatusStor
     }
 
     /// <summary>
-    /// Pings a single service, stores the result, and broadcasts it to connected clients.
+    /// Pings a single service, stores the result, broadcasts it to connected clients, and sends a Ting notification on entering or leaving a failed state.
     /// </summary>
     /// <param name="service">The service to ping.</param>
     /// <param name="cancellationToken">Token that signals when the host is shutting down.</param>
@@ -150,5 +171,37 @@ public class HealthCheckService(IHttpClientFactory httpClientFactory, StatusStor
             status.LastChecked,
             status.Error
         }, cancellationToken);
+
+        await UpdateHealthStateAsync(service, status);
+    }
+
+    /// <summary>
+    /// Tracks consecutive failures for a service and sends a Ting notification
+    /// once it first crosses the failure threshold, staying silent until it recovers.
+    /// </summary>
+    /// <param name="service">The service that was just checked.</param>
+    /// <param name="status">The result of the most recent check.</param>
+    private async Task UpdateHealthStateAsync(ServiceEntry service, ServiceStatus status)
+    {
+        // Get or create the health state for this service
+        ServiceHealthState state = HealthStates.GetOrAdd(service.Name, _ => new ServiceHealthState());
+
+        // If the service is online, reset the consecutive failure count and notify if it was previously down
+        if (status.IsOnline)
+        {
+            state.ConsecutiveFailures = 0;
+            state.HasNotifiedDown = false;
+            return;
+        }
+
+        // If the service is offline, increment the consecutive failure count and send a notification if it reaches the threshold
+        state.ConsecutiveFailures++;
+
+        // Send a notification if the service has reached the failure threshold and hasn't already notified
+        if (state.ConsecutiveFailures == FailureThreshold && !state.HasNotifiedDown)
+        {
+            await TingClient.SendAsync(TingHttpClient, TingApiKey, Logger, $"{service.Name} Down", status.Error ?? "Service is not responding.");
+            state.HasNotifiedDown = true;
+        }
     }
 }
