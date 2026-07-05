@@ -92,13 +92,13 @@ body {
 }
 
 .response-time-fast {
-    color: #4caf50;
+    color: #198754;
 }
 
 .response-time-moderate {
-    color: #ff9800;
+    color: #e8a33d;
 }
 
 .response-time-slow {
-    color: #f44336;
+    color: #dc3545;
 }
