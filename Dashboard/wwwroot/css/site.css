@@ -65,14 +65,40 @@ body {
     }
 }
 
+.refresh-btn {
+    background: rgba(0, 0, 0, 0.5);
+    border: none;
+    border-radius: 4px;
+    color: white;
+    padding: 4px;
+    display: flex;
+    z-index: 10;
+    cursor: pointer;
+}
+
+    .refresh-btn:disabled {
+        cursor: default;
+        opacity: 0.6;
+    }
+
+    .refresh-btn.checking .refresh-icon {
+        animation: spin 1s linear infinite;
+    }
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
 .response-time-fast {
-    color: #198754;
+    color: #4caf50;
 }
 
 .response-time-moderate {
-    color: #e8a33d;
+    color: #ff9800;
 }
 
 .response-time-slow {
-    color: #dc3545;
+    color: #f44336;
 }

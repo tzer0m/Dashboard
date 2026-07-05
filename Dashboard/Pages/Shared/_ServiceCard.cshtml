@@ -15,56 +15,61 @@
     string badgeTitle = Model.Status?.StatusCode != null ? ReasonPhrases.GetReasonPhrase(Model.Status.StatusCode.Value) : Model.Status?.Error ?? string.Empty;
 }
 
-<a href="@Model.Service.Url" target="_blank" rel="noopener noreferrer" class="card text-decoration-none text-reset d-block" style="cursor: pointer;">
-    <div class="card-body">
-        <div class="d-flex align-items-center gap-2 mb-2">
-            <img src="@faviconSrc" width="16" height="16" onerror="this.style.display='none'" />
-            <h6 class="card-title mb-0">@Model.Service.Name</h6>
-            <span class="d-inline-flex align-items-center gap-2 ms-auto">
-                <span class="text-secondary d-inline-flex" title="@Model.Service.Access" style="flex-shrink: 0;">
-                    @if (isGlobal)
-                    {
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="12" cy="12" r="10"></circle>
-                            <line x1="2" y1="12" x2="22" y2="12"></line>
-                            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
-                        </svg>
-                    }
-                    else
-                    {
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M3 9.5 12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"></path>
-                        </svg>
-                    }
+<div class="card text-decoration-none text-reset d-block position-relative" data-service-name="@Model.Service.Name" style="cursor: pointer;">
+    <button type="button" class="refresh-btn position-absolute top-0 end-0 m-2" title="Refresh now" onclick="event.stopPropagation(); event.preventDefault(); refreshService('@Model.Service.Name', this);">
+        <svg class="refresh-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="23 4 23 10 17 10"></polyline>
+            <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+        </svg>
+    </button>
+    <a href="@Model.Service.Url" target="_blank" rel="noopener noreferrer" class="card text-decoration-none text-reset d-block" style="cursor: pointer;">
+        <div class="card-body">
+            <div class="d-flex align-items-center gap-2 mb-2">
+                <img src="@faviconSrc" width="16" height="16" onerror="this.style.display='none'" />
+                <h6 class="card-title mb-0">@Model.Service.Name</h6>
+                <span class="d-inline-flex align-items-center gap-2 ms-auto">
+                    <span class="text-secondary d-inline-flex" title="@Model.Service.Access" style="flex-shrink: 0;">
+                        @if (isGlobal)
+                        {
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="2" y1="12" x2="22" y2="12"></line>
+                                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                            </svg>
+                        }
+                        else
+                        {
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M3 9.5 12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"></path>
+                            </svg>
+                        }
+                    </span>
+                    <span class="badge @badgeClass" title="@badgeTitle">@badgeText</span>
                 </span>
-                <span class="badge @badgeClass" title="@badgeTitle">@badgeText</span>
-            </span>
-        </div>
-        <div class="d-flex justify-content-between align-items-center mb-1">
-            <p class="text-secondary small mb-0">@Model.Service.Type</p>
-            @if (!string.IsNullOrEmpty(Model.Service.RepoName))
+            </div>
+            <div class="d-flex justify-content-between align-items-center mb-1">
+                <p class="text-secondary small mb-0">@Model.Service.Type</p>
+                @if (!string.IsNullOrEmpty(Model.Service.RepoName))
+                {
+                    long bucket = DateTimeOffset.UtcNow.ToUnixTimeSeconds() / 60;
+                    string innerUrl = $"https://tzer0m.co.uk/Badge?repo={Model.Service.RepoName}&_t={bucket}";
+                    string badgeUrl = $"https://img.shields.io/endpoint?url={Uri.EscapeDataString(innerUrl)}&style=flat-square&labelColor=212529&logo=github&logoColor=8b949e";
+                    <img src="@badgeUrl" alt="Deploy status">
+                }
+            </div>
+            <p class="small fs-6 mb-0 text-secondary">@displayUrl</p>
+            @if (Model.Status != null)
             {
-                long bucket = DateTimeOffset.UtcNow.ToUnixTimeSeconds() / 60;
-                string innerUrl = $"https://tzer0m.co.uk/Badge?repo={Model.Service.RepoName}&_t={bucket}";
-                string badgeUrl = $"https://img.shields.io/endpoint?url={Uri.EscapeDataString(innerUrl)}&style=flat-square&labelColor=212529&logo=github&logoColor=8b949e";
-                <img src="@badgeUrl" alt="Deploy status">
+                <div class="mt-2 text-secondary" style="font-size: 0.75rem;">
+                    <span class="response-time @(Model.Status.ResponseTimeMs <= 200 ? "response-time-fast" : Model.Status.ResponseTimeMs <= 500 ? "response-time-moderate" : "response-time-slow")">@Model.Status.ResponseTimeMs ms</span>
+                    <span class="status-code ms-2 @(Model.Status.StatusCode == null ? "d-none" : "")">HTTP @Model.Status.StatusCode</span>
+                    @if (Model.Service.LocalPort != null)
+                    {
+                        <span class="ms-2">@Model.Service.LocalPort</span>
+                    }
+                    <span class="last-checked ms-2">@Model.Status.LastChecked.ToString("HH:mm:ss") UTC</span>
+                </div>
             }
         </div>
-        <p class="small fs-6 mb-0 text-secondary">@displayUrl</p>
-        @if (Model.Status != null)
-        {
-            <div class="mt-2 text-secondary" style="font-size: 0.75rem;">
-                <span class="@(Model.Status.ResponseTimeMs <= 200 ? "response-time-fast" : Model.Status.ResponseTimeMs <= 500 ? "response-time-moderate" : "response-time-slow")">@Model.Status.ResponseTimeMs ms</span>
-                @if (Model.Status.StatusCode != null)
-                {
-                    <span class="ms-2">HTTP @Model.Status.StatusCode</span>
-                }
-                @if (Model.Service.LocalPort != null)
-                {
-                    <span class="ms-2">@Model.Service.LocalPort</span>
-                }
-                <span class="ms-2">@Model.Status.LastChecked.ToString("HH:mm:ss") UTC</span>
-            </div>
-        }
-    </div>
-</a>
+    </a>
+</div>
