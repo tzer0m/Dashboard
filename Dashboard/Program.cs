@@ -1,6 +1,8 @@
 using Dashboard.Auth;
+using Dashboard.Data;
 using Dashboard.Hubs;
 using Dashboard.Services;
+using Microsoft.EntityFrameworkCore;
 using t0m.Ting;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
@@ -16,6 +18,7 @@ builder.Services.AddScoped<ApiKeyAuthFilter>();
 builder.Services.AddControllers();
 builder.Services.AddSignalR();
 builder.Services.AddTingClient(builder.Configuration);
+builder.Services.AddDbContext<DashboardDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("Robert1")));
 
 WebApplication app = builder.Build();
 app.UseRouting();

@@ -1,6 +1,8 @@
-﻿using Dashboard.Hubs;
+﻿using Dashboard.Data;
+using Dashboard.Hubs;
 using Dashboard.Models;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Net;
@@ -20,7 +22,8 @@ namespace Dashboard.Services;
 /// <param name="configuration">The app configuration containing service entries.</param>
 /// <param name="logger">The logger instance.</param>
 /// <param name="tingClient">The Ting client for sending notifications.</param>
-public class HealthCheckService(IHttpClientFactory httpClientFactory, StatusStore statusStore, IHubContext<ServiceStatusHub> hubContext, IConfiguration configuration, ILogger<HealthCheckService> logger, TingClient tingClient) : BackgroundService
+/// <param name="scopeFactory">Factory used to create a scoped service provider for resolving <see cref="DashboardDbContext"/>.</param>
+public class HealthCheckService(IHttpClientFactory httpClientFactory, StatusStore statusStore, IHubContext<ServiceStatusHub> hubContext, IConfiguration configuration, ILogger<HealthCheckService> logger, TingClient tingClient, IServiceScopeFactory scopeFactory) : BackgroundService
 {
     /// <summary>
     /// Http client used to send requests to the services.
@@ -58,6 +61,11 @@ public class HealthCheckService(IHttpClientFactory httpClientFactory, StatusStor
     private readonly TingClient TingClient = tingClient;
 
     /// <summary>
+    /// Factory used to create a scoped service provider for resolving <see cref="DashboardDbContext"/>, since this service is a singleton but the DbContext is scoped.
+    /// </summary>
+    private readonly IServiceScopeFactory ScopeFactory = scopeFactory;
+
+    /// <summary>
     /// Interval between health checks, in milliseconds. This is set to 60 seconds unless overridden.
     /// </summary>
     private readonly int IntervalSeconds = configuration.GetValue("HealthCheck:IntervalSeconds", 60);
@@ -71,6 +79,11 @@ public class HealthCheckService(IHttpClientFactory httpClientFactory, StatusStor
     /// Per-service consecutive-failure state, keyed by service name.
     /// </summary>
     private readonly ConcurrentDictionary<string, ServiceHealthState> HealthStates = new();
+
+    /// <summary>
+    /// The UTC timestamp of the last uptime history cleanup, used to run cleanup once per day rather than on every check cycle.
+    /// </summary>
+    private DateTime LastCleanupUtc = DateTime.MinValue;
 
     /// <summary>
     /// Executes the background ping loop. Services are checked one at a time,
@@ -89,6 +102,8 @@ public class HealthCheckService(IHttpClientFactory httpClientFactory, StatusStor
 
         while (!stoppingToken.IsCancellationRequested)
         {
+            await CleanupUptimeHistoryAsync(stoppingToken);
+
             foreach (ServiceEntry service in Services)
             {
                 await PingServiceAsync(service, stoppingToken);
@@ -155,8 +170,9 @@ public class HealthCheckService(IHttpClientFactory httpClientFactory, StatusStor
             };
         }
 
-        // Store the status in the status store
+        // Store the status in the status store and database
         StatusStore.Set(service.Name, status);
+        await RecordUptimeAsync(service, status, cancellationToken);
 
         // Broadcast the status update to connected clients
         await HubContext.Clients.All.SendAsync("ServiceStatusUpdated", new
@@ -199,6 +215,67 @@ public class HealthCheckService(IHttpClientFactory httpClientFactory, StatusStor
         {
             await TingClient.SendAsync($"{service.Name} Down", status.Error ?? "Service is not responding.");
             state.HasNotifiedDown = true;
+        }
+    }
+
+    /// <summary>
+    /// Records the result of a health check to the database for uptime history. Failures here are logged but never propagate, so a database outage doesn't interrupt the health check loop itself.
+    /// </summary>
+    /// <param name="service">The service that was checked.</param>
+    /// <param name="status">The result of the check.</param>
+    /// <param name="cancellationToken">Token that signals when the host is shutting down.</param>
+    private async Task RecordUptimeAsync(ServiceEntry service, ServiceStatus status, CancellationToken cancellationToken)
+    {
+        try
+        {
+            using IServiceScope scope = ScopeFactory.CreateScope();
+            DashboardDbContext dbContext = scope.ServiceProvider.GetRequiredService<DashboardDbContext>();
+
+            dbContext.UptimeRecords.Add(new UptimeRecord
+            {
+                ServiceName = service.Name,
+                CheckedAtUtc = status.LastChecked,
+                IsUp = status.IsOnline,
+                StatusCode = status.StatusCode,
+                ResponseTimeMs = (int)status.ResponseTimeMs
+            });
+
+            await dbContext.SaveChangesAsync(cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogWarning("Failed to record uptime for {ServiceName}: {Message}", service.Name, ex.Message);
+        }
+    }
+
+    /// <summary>
+    /// Deletes uptime records older than 30 days, run once per day rather than
+    /// every check cycle since it's not time-sensitive.
+    /// </summary>
+    /// <param name="cancellationToken">Token that signals when the host is shutting down.</param>
+    private async Task CleanupUptimeHistoryAsync(CancellationToken cancellationToken)
+    {
+        if (DateTime.UtcNow - LastCleanupUtc < TimeSpan.FromDays(1))
+        {
+            return;
+        }
+
+        try
+        {
+            using IServiceScope scope = ScopeFactory.CreateScope();
+            DashboardDbContext dbContext = scope.ServiceProvider.GetRequiredService<DashboardDbContext>();
+
+            DateTime cutoff = DateTime.UtcNow.AddDays(-30);
+            int deleted = await dbContext.UptimeRecords
+                .Where(r => r.CheckedAtUtc < cutoff)
+                .ExecuteDeleteAsync(cancellationToken);
+
+            Logger.LogInformation("Uptime history cleanup removed {Count} records older than {Cutoff}", deleted, cutoff);
+            LastCleanupUtc = DateTime.UtcNow;
+        }
+        catch (Exception ex)
+        {
+            Logger.LogWarning("Uptime history cleanup failed: {Message}", ex.Message);
         }
     }
 }
