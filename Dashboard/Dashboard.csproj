@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.2" />
+    <PackageReference Include="t0m.Ting" Version="1.0.4" />
   </ItemGroup>
 
 </Project>

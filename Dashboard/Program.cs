@@ -1,6 +1,7 @@
 using Dashboard.Auth;
 using Dashboard.Hubs;
 using Dashboard.Services;
+using t0m.Ting;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
@@ -14,6 +15,7 @@ builder.Services.AddMemoryCache();
 builder.Services.AddScoped<ApiKeyAuthFilter>();
 builder.Services.AddControllers();
 builder.Services.AddSignalR();
+builder.Services.AddTingClient(builder.Configuration);
 
 WebApplication app = builder.Build();
 app.UseRouting();

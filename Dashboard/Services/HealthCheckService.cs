@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.SignalR;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Net;
+using t0m.Ting;
 
 namespace Dashboard.Services;
 
@@ -18,17 +19,13 @@ namespace Dashboard.Services;
 /// <param name="hubContext">The hub context used to broadcast status updates.</param>
 /// <param name="configuration">The app configuration containing service entries.</param>
 /// <param name="logger">The logger instance.</param>
-public class HealthCheckService(IHttpClientFactory httpClientFactory, StatusStore statusStore, IHubContext<ServiceStatusHub> hubContext, IConfiguration configuration, ILogger<HealthCheckService> logger) : BackgroundService
+/// <param name="tingClient">The Ting client for sending notifications.</param>
+public class HealthCheckService(IHttpClientFactory httpClientFactory, StatusStore statusStore, IHubContext<ServiceStatusHub> hubContext, IConfiguration configuration, ILogger<HealthCheckService> logger, TingClient tingClient) : BackgroundService
 {
     /// <summary>
     /// Http client used to send requests to the services.
     /// </summary>
     private readonly HttpClient HttpClient = httpClientFactory.CreateClient("HealthCheckService");
-
-    /// <summary>
-    /// Http client used to send Ting notifications.
-    /// </summary>
-    private readonly HttpClient TingHttpClient = httpClientFactory.CreateClient();
 
     /// <summary>
     /// Memory cache used to store the results of the health checks.
@@ -56,14 +53,14 @@ public class HealthCheckService(IHttpClientFactory httpClientFactory, StatusStor
     private readonly ILogger<HealthCheckService> Logger = logger;
 
     /// <summary>
+    /// Client used to send Ting notifications.
+    /// </summary>
+    private readonly TingClient TingClient = tingClient;
+
+    /// <summary>
     /// Interval between health checks, in milliseconds. This is set to 60 seconds unless overridden.
     /// </summary>
     private readonly int IntervalSeconds = configuration.GetValue("HealthCheck:IntervalSeconds", 60);
-
-    /// <summary>
-    /// API key for the Ting notification endpoint on api.tzer0m.co.uk.
-    /// </summary>
-    private readonly string TingApiKey = configuration.GetValue("Ting:ApiKey", string.Empty) ?? string.Empty;
 
     /// <summary>
     /// Number of consecutive failures required before sending a "down" notification.
@@ -200,7 +197,7 @@ public class HealthCheckService(IHttpClientFactory httpClientFactory, StatusStor
         // Send a notification if the service has reached the failure threshold and hasn't already notified
         if (state.ConsecutiveFailures == FailureThreshold && !state.HasNotifiedDown)
         {
-            await TingClient.SendAsync(TingHttpClient, TingApiKey, Logger, $"{service.Name} Down", status.Error ?? "Service is not responding.");
+            await TingClient.SendAsync($"{service.Name} Down", status.Error ?? "Service is not responding.");
             state.HasNotifiedDown = true;
         }
     }
