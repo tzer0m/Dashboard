@@ -53,7 +53,7 @@ public sealed class UptimeService(IDbContextFactory<DashboardDbContext> dbContex
         // Query the raw uptime records for this service in the window, ordered by timestamp.
         await using DashboardDbContext dbContext = await DbContextFactory.CreateDbContextAsync(cancellationToken);
         List<UptimeRecord> records = await dbContext.UptimeRecords.Where(r => r.ServiceName == serviceName && r.CheckedAtUtc >= windowStart && r.CheckedAtUtc <= windowEnd).OrderBy(r => r.CheckedAtUtc).ToListAsync(cancellationToken);
-        List<(DateTime Start, DateTime End, UptimeDayStatus Status)> segments = BuildSegments(records, windowStart, windowEnd, gapThreshold, serviceName == DashboardServiceName);
+        List<(DateTime Start, DateTime End, UptimeDayStatus Status)> segments = BuildSegments(records, windowEnd, gapThreshold, serviceName == DashboardServiceName);
 
         // Compute the daily bars and uptime percentage from the segments.
         double? uptimePercent = CalculateUptimePercent(segments);
@@ -64,32 +64,23 @@ public sealed class UptimeService(IDbContextFactory<DashboardDbContext> dbContex
     }
 
     /// <summary>
-    /// Walks the ordered check history and produces a sequence of contiguous
-    /// time segments, each classified as up, down, or unknown (missing data).
+    /// Walks the ordered check history and produces a sequence of contiguous time segments, each classified as up, down, or unknown (missing data).
     /// </summary>
     /// <param name="records">The ordered check history for a single service within the window.</param>
-    /// <param name="windowStart">The start of the 30-day window.</param>
     /// <param name="windowEnd">The end of the 30-day window (now).</param>
     /// <param name="gapThreshold">The interval beyond which a gap between checks is treated as missing data.</param>
     /// <param name="treatGapsAsDown">Whether gaps should be classified as down rather than unknown, used for Dashboard's own history.</param>
-    private static List<(DateTime Start, DateTime End, UptimeDayStatus Status)> BuildSegments(List<UptimeRecord> records, DateTime windowStart, DateTime windowEnd, TimeSpan gapThreshold, bool treatGapsAsDown)
+    private static List<(DateTime Start, DateTime End, UptimeDayStatus Status)> BuildSegments(List<UptimeRecord> records, DateTime windowEnd, TimeSpan gapThreshold, bool treatGapsAsDown)
     {
         List<(DateTime Start, DateTime End, UptimeDayStatus Status)> segments = [];
 
-        // Add assumed segment from window start to first record, if any.
+        // If there's no data at all yet, report nothing rather than fabricating a verdict for the whole window.
         if (records.Count == 0)
         {
-            segments.Add((windowStart, windowEnd, treatGapsAsDown ? UptimeDayStatus.Down : UptimeDayStatus.Unknown));
             return segments;
         }
 
-        // Add segment from window start to first record.
-        if (records[0].CheckedAtUtc > windowStart)
-        {
-            segments.Add((windowStart, records[0].CheckedAtUtc, treatGapsAsDown ? UptimeDayStatus.Down : UptimeDayStatus.Unknown));
-        }
-
-        // Walk through the records and build segments.
+        // Walk through the records and build segments. The time before the first record is intentionally excluded — it means monitoring hadn't started yet, not that the service was down.
         for (int i = 0; i < records.Count - 1; i++)
         {
             // Set the current segment's end to the next record's timestamp.
