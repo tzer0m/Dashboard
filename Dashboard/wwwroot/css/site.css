@@ -112,3 +112,38 @@ body {
 .response-time-slow {
     color: #dc3545;
 }
+
+.uptime-good {
+    color: #198754;
+}
+
+.uptime-warn {
+    color: #e8a33d;
+}
+
+.uptime-bad {
+    color: #dc3545;
+}
+
+.uptime-strip {
+    display: flex;
+    gap: 2px;
+}
+
+.uptime-bar {
+    flex: 1 1 0;
+    height: 16px;
+    border-radius: 2px;
+}
+
+.uptime-bar-up {
+    background-color: #198754;
+}
+
+.uptime-bar-unknown {
+    background-color: #6c757d;
+}
+
+.uptime-bar-down {
+    background-color: #dc3545;
+}

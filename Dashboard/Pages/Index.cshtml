@@ -24,7 +24,8 @@
             {
                 Service = device.Value.First(),
                 Status = Model.Statuses.GetValueOrDefault(device.Value.First().Name),
-                FaviconUrl = device.Value.First().FaviconUrl
+                FaviconUrl = device.Value.First().FaviconUrl,
+                Uptime = Model.UptimeSummaries.GetValueOrDefault(device.Value.First().Name)
             })
         </div>
     }
@@ -45,7 +46,8 @@
                     {
                         Service = service,
                         Status = Model.Statuses.GetValueOrDefault(service.Name),
-                        FaviconUrl = service.FaviconUrl
+                        FaviconUrl = service.FaviconUrl,
+                        Uptime = Model.UptimeSummaries.GetValueOrDefault(service.Name)
                     })
                 </div>
             }
