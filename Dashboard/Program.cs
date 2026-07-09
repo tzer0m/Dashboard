@@ -18,7 +18,8 @@ builder.Services.AddScoped<ApiKeyAuthFilter>();
 builder.Services.AddControllers();
 builder.Services.AddSignalR();
 builder.Services.AddTingClient(builder.Configuration);
-builder.Services.AddDbContext<DashboardDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("Robert1")));
+builder.Services.AddDbContextFactory<DashboardDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("Robert1")));
+builder.Services.AddScoped<UptimeService>();
 
 WebApplication app = builder.Build();
 app.UseRouting();

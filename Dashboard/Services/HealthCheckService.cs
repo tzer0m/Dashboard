@@ -3,6 +3,7 @@ using Dashboard.Hubs;
 using Dashboard.Models;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Internal;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Net;
@@ -22,8 +23,8 @@ namespace Dashboard.Services;
 /// <param name="configuration">The app configuration containing service entries.</param>
 /// <param name="logger">The logger instance.</param>
 /// <param name="tingClient">The Ting client for sending notifications.</param>
-/// <param name="scopeFactory">Factory used to create a scoped service provider for resolving <see cref="DashboardDbContext"/>.</param>
-public class HealthCheckService(IHttpClientFactory httpClientFactory, StatusStore statusStore, IHubContext<ServiceStatusHub> hubContext, IConfiguration configuration, ILogger<HealthCheckService> logger, TingClient tingClient, IServiceScopeFactory scopeFactory) : BackgroundService
+/// <param name="dbContextFactory">The factory for creating database contexts.</param>
+public class HealthCheckService(IHttpClientFactory httpClientFactory, StatusStore statusStore, IHubContext<ServiceStatusHub> hubContext, IConfiguration configuration, ILogger<HealthCheckService> logger, TingClient tingClient, IDbContextFactory<DashboardDbContext> dbContextFactory) : BackgroundService
 {
     /// <summary>
     /// Http client used to send requests to the services.
@@ -61,9 +62,9 @@ public class HealthCheckService(IHttpClientFactory httpClientFactory, StatusStor
     private readonly TingClient TingClient = tingClient;
 
     /// <summary>
-    /// Factory used to create a scoped service provider for resolving <see cref="DashboardDbContext"/>, since this service is a singleton but the DbContext is scoped.
+    /// Factory used to create short-lived <see cref="DashboardDbContext"/> instances, since this service is a singleton and a single DbContext isn't safe to share across calls.
     /// </summary>
-    private readonly IServiceScopeFactory ScopeFactory = scopeFactory;
+    private readonly IDbContextFactory<DashboardDbContext> DbContextFactory = dbContextFactory;
 
     /// <summary>
     /// Interval between health checks, in milliseconds. This is set to 60 seconds unless overridden.
@@ -228,9 +229,7 @@ public class HealthCheckService(IHttpClientFactory httpClientFactory, StatusStor
     {
         try
         {
-            using IServiceScope scope = ScopeFactory.CreateScope();
-            DashboardDbContext dbContext = scope.ServiceProvider.GetRequiredService<DashboardDbContext>();
-
+            using DashboardDbContext dbContext = await DbContextFactory.CreateDbContextAsync(cancellationToken);
             dbContext.UptimeRecords.Add(new UptimeRecord
             {
                 ServiceName = service.Name,
@@ -262,9 +261,7 @@ public class HealthCheckService(IHttpClientFactory httpClientFactory, StatusStor
 
         try
         {
-            using IServiceScope scope = ScopeFactory.CreateScope();
-            DashboardDbContext dbContext = scope.ServiceProvider.GetRequiredService<DashboardDbContext>();
-
+            await using DashboardDbContext dbContext = await DbContextFactory.CreateDbContextAsync(cancellationToken);
             DateTime cutoff = DateTime.UtcNow.AddDays(-30);
             int deleted = await dbContext.UptimeRecords
                 .Where(r => r.CheckedAtUtc < cutoff)

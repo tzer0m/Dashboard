@@ -2,15 +2,16 @@
 using Dashboard.Models;
 using Dashboard.Models.Uptime;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Dashboard.Services;
 
 /// <summary>
 /// Computes rolling 30-day uptime percentages and daily outage/gap history for services, based on the raw <see cref="UptimeRecord"/> check history.
 /// </summary>
-/// <param name="dbContext">The database context for querying uptime history.</param>
+/// <param name="dbContextFactory">Factory used to create short-lived database contexts.</param>
 /// <param name="configuration">The app configuration, used to read the health check interval.</param>
-public sealed class UptimeService(DashboardDbContext dbContext, IConfiguration configuration)
+public sealed class UptimeService(IDbContextFactory<DashboardDbContext> dbContextFactory, IConfiguration configuration)
 {
     /// <summary>
     /// The name of the Dashboard's own service entry. A gap in its own recorded history means Dashboard itself wasn't running, so it counts as downtime rather than unknown — nothing else could have been recording it either way.
@@ -28,9 +29,9 @@ public sealed class UptimeService(DashboardDbContext dbContext, IConfiguration c
     private const double GapToleranceMultiplier = 2.5;
 
     /// <summary>
-    /// The database context used to query uptime history.
+    /// Factory used to create a short-lived database context per query.
     /// </summary>
-    private readonly DashboardDbContext DbContext = dbContext;
+    private readonly IDbContextFactory<DashboardDbContext> DbContextFactory = dbContextFactory;
 
     /// <summary>
     /// The expected interval between consecutive checks for a single service.
@@ -50,7 +51,8 @@ public sealed class UptimeService(DashboardDbContext dbContext, IConfiguration c
         TimeSpan gapThreshold = CheckInterval * GapToleranceMultiplier;
 
         // Query the raw uptime records for this service in the window, ordered by timestamp.
-        List<UptimeRecord> records = await DbContext.UptimeRecords.Where(r => r.ServiceName == serviceName && r.CheckedAtUtc >= windowStart && r.CheckedAtUtc <= windowEnd).OrderBy(r => r.CheckedAtUtc).ToListAsync(cancellationToken);
+        await using DashboardDbContext dbContext = await DbContextFactory.CreateDbContextAsync(cancellationToken);
+        List<UptimeRecord> records = await dbContext.UptimeRecords.Where(r => r.ServiceName == serviceName && r.CheckedAtUtc >= windowStart && r.CheckedAtUtc <= windowEnd).OrderBy(r => r.CheckedAtUtc).ToListAsync(cancellationToken);
         List<(DateTime Start, DateTime End, UptimeDayStatus Status)> segments = BuildSegments(records, windowStart, windowEnd, gapThreshold, serviceName == DashboardServiceName);
 
         // Compute the daily bars and uptime percentage from the segments.
