@@ -5,7 +5,6 @@
     string badgeText = Model.Status switch
     {
         null => "Pending",
-        { IsOnline: true, StatusCode: 401 } => "AuthRequired",
         { IsOnline: true } => "Online",
         _ => "Offline"
     };
