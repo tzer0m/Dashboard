@@ -64,8 +64,7 @@ public sealed class UptimeService(IDbContextFactory<DashboardDbContext> dbContex
     }
 
     /// <summary>
-    /// Walks the ordered check history and produces a sequence of contiguous
-    /// time segments, each classified as up, down, or unknown (missing data).
+    /// Walks the ordered check history and produces a sequence of contiguous time segments, each classified as up, down, or unknown (missing data).
     /// </summary>
     /// <param name="records">The ordered check history for a single service within the window.</param>
     /// <param name="windowEnd">The end of the 30-day window (now).</param>
