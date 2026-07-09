@@ -1,4 +1,5 @@
 ﻿@using Microsoft.AspNetCore.WebUtilities
+@using Dashboard.Models.Uptime
 @model Dashboard.Models.ServiceCard
 @{
     string badgeClass = Model.Status == null ? "bg-secondary" : Model.Status.IsOnline ? "bg-success" : "bg-danger";
@@ -12,10 +13,19 @@
     string faviconSrc = Model.FaviconUrl ?? $"/Favicon?url={Uri.EscapeDataString(Model.Service.Url)}";
     bool isGlobal = Model.Service.Access == "Global";
     string badgeTitle = Model.Status?.StatusCode != null ? ReasonPhrases.GetReasonPhrase(Model.Status.StatusCode.Value) : Model.Status?.Error ?? string.Empty;
+
+    string uptimeClass = Model.Uptime?.UptimePercent switch
+    {
+        null => "text-secondary",
+        >= 99 => "uptime-good",
+        >= 95 => "uptime-warn",
+        _ => "uptime-bad"
+    };
+    string uptimeText = Model.Uptime?.UptimePercent is double pct ? $"{pct.ToString("F1")}%" : "—";
 }
 
 <div class="card text-decoration-none text-reset d-block position-relative" data-service-name="@Model.Service.Name" style="cursor: pointer;">
-    <button type="button" class="refresh-btn position-absolute bottom-0 end-0 m-3" title="Refresh now" onclick="event.stopPropagation(); event.preventDefault(); refreshService('@Model.Service.Name', this);">
+    <button type="button" class="refresh-btn position-absolute end-0 m-3" style="bottom: 1.75rem;" title="Refresh now" onclick="event.stopPropagation(); event.preventDefault(); refreshService('@Model.Service.Name', this);">
         <svg class="refresh-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <polyline points="23 4 23 10 17 10"></polyline>
             <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
@@ -57,7 +67,10 @@
                     <img src="@badgeUrl" alt="Deploy status" style="cursor: pointer;" onclick="event.stopPropagation(); event.preventDefault(); window.open('@repoUrl', '_blank', 'noopener,noreferrer');" />
                 }
             </div>
-            <p class="small fs-6 mb-0 text-secondary">@displayUrl</p>
+            <div class="d-flex justify-content-between align-items-center mb-1">
+                <p class="small fs-6 mb-0 text-secondary">@displayUrl</p>
+                <span class="uptime-percent small fs-6 mb-0 @uptimeClass">@uptimeText</span>
+            </div>
             <div class="mt-2 text-secondary" style="font-size: 0.75rem;">
                 <span class="response-time @(Model.Status != null ? (Model.Status.ResponseTimeMs <= 200 ? "response-time-fast" : Model.Status.ResponseTimeMs <= 500 ? "response-time-moderate" : "response-time-slow") : "")">@(Model.Status != null ? $"{Model.Status.ResponseTimeMs} ms" : "—")</span>
                 <span class="status-code ms-2">@(Model.Status?.StatusCode != null ? $"HTTP {Model.Status.StatusCode}" : "—")</span>
@@ -67,6 +80,21 @@
                 }
                 <span class="last-checked ms-2">@(Model.Status != null ? Model.Status.LastChecked.ToString("HH:mm:ss") + " UTC" : "—")</span>
             </div>
+            @if (Model.Uptime != null)
+            {
+                <div class="uptime-strip mt-2">
+                    @foreach (DailyUptimeBar bar in Model.Uptime.Days)
+                    {
+                        string barClass = bar.Status switch
+                        {
+                            UptimeDayStatus.Down => "uptime-bar-down",
+                            UptimeDayStatus.Unknown => "uptime-bar-unknown",
+                            _ => "uptime-bar-up"
+                        };
+                        <span class="uptime-bar @barClass" title="@bar.Date.ToString("dd MMM")"></span>
+                    }
+                </div>
+            }
         </div>
     </a>
 </div>

@@ -1,4 +1,6 @@
-﻿namespace Dashboard.Models;
+﻿using Dashboard.Models.Uptime;
+
+namespace Dashboard.Models;
 
 /// <summary>
 /// View model for the service card partial.
@@ -19,4 +21,9 @@ public class ServiceCard
     /// Gets or sets an optional favicon URL override.
     /// </summary>
     public string? FaviconUrl { get; set; }
+
+    /// <summary>
+    /// Gets or sets the 30-day uptime summary, or null if not yet computed.
+    /// </summary>
+    public UptimeSummary? Uptime { get; set; }
 }
