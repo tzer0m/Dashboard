@@ -59,13 +59,12 @@ function handleStatusUpdate(status) {
     if (!card) return;
 
     const isOnline = status.isOnline;
-    const isAuthRequired = isOnline && status.statusCode === 401;
 
     // Badge state and tooltip
     const badge = card.querySelector('.badge');
     badge.classList.remove('bg-success', 'bg-danger', 'bg-secondary');
     badge.classList.add(isOnline ? 'bg-success' : 'bg-danger');
-    badge.textContent = isAuthRequired ? 'AuthRequired' : (isOnline ? 'Online' : 'Offline');
+    badge.textContent = isOnline ? 'Online' : 'Offline';
     badge.title = isOnline ? '' : (status.error ?? '');
 
     // Response time, colour-coded the same way the server-rendered version is
