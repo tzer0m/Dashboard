@@ -8,6 +8,7 @@ using t0m.Ting;
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
 builder.Services.AddSingleton<StatusStore>();
+builder.Services.AddSingleton<UptimeSummaryStore>();
 builder.Services.AddHttpClient();
 builder.Services.AddHttpClient("HealthCheckService", client => client.Timeout = TimeSpan.FromSeconds(5));
 builder.Services.AddHttpClient<GitHubBadgeService>();
