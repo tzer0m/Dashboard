@@ -317,4 +317,3 @@ public class HealthCheckService(IHttpClientFactory httpClientFactory, StatusStor
         }
     }
 }
-}
