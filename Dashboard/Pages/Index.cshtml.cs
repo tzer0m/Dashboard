@@ -13,8 +13,8 @@ namespace Dashboard.Pages;
 /// </remarks>
 /// <param name="statusStore">The singleton status store.</param>
 /// <param name="configuration">The app configuration.</param>
-/// <param name="uptimeService">The service used to compute 30-day uptime summaries.</param>
-public class IndexModel(StatusStore statusStore, IConfiguration configuration, UptimeService uptimeService) : PageModel
+/// <param name="uptimeSummaryStore">The singleton uptime summary store.</param>
+public class IndexModel(StatusStore statusStore, IConfiguration configuration, UptimeSummaryStore uptimeSummaryStore) : PageModel
 {
     /// <summary>
     /// Stores the current status of all services, grouped by device.
@@ -27,9 +27,9 @@ public class IndexModel(StatusStore statusStore, IConfiguration configuration, U
     private readonly IConfiguration Configuration = configuration;
 
     /// <summary>
-    /// Uptime service used to compute 30-day uptime summaries for each service.
+    /// Stores the latest computed 30-day uptime summary for each service.
     /// </summary>
-    private readonly UptimeService UptimeService = uptimeService;
+    private readonly UptimeSummaryStore UptimeSummaryStore = uptimeSummaryStore;
 
     /// <summary>
     /// Services grouped by device name, populated on GET.
@@ -47,18 +47,15 @@ public class IndexModel(StatusStore statusStore, IConfiguration configuration, U
     public IReadOnlyDictionary<string, UptimeSummary> UptimeSummaries { get; set; } = new Dictionary<string, UptimeSummary>();
 
     /// <summary>
-    /// Loads services from config, reads cached statuses, and computes uptime summaries.
+    /// Loads services from config and reads cached statuses and uptime summaries.
     /// </summary>
-    public async Task OnGetAsync()
+    public void OnGet()
     {
         // Load the list of services from config, grouped by device.
         Response.Headers.CacheControl = "no-store";
         List<ServiceEntry> services = Configuration.GetSection("Services").Get<List<ServiceEntry>>() ?? [];
         ServicesByDevice = services.GroupBy(s => s.LocalIp).ToDictionary(g => g.Key, g => g.ToList());
         Statuses = StatusStore.GetAll();
-
-        // Compute the 30-day uptime summary for each service.
-        UptimeSummary[] summaries = await Task.WhenAll(services.Select(s => UptimeService.GetUptimeSummaryAsync(s.Name, HttpContext.RequestAborted)));
-        UptimeSummaries = services.Zip(summaries, (service, summary) => (service.Name, summary)).ToDictionary(x => x.Name, x => x.summary);
+        UptimeSummaries = UptimeSummaryStore.GetAll();
     }
 }

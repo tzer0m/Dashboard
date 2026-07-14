@@ -19,13 +19,14 @@ namespace Dashboard.Services;
 /// </remarks>
 /// <param name="httpClientFactory">Factory used to create the named HTTP client for pinging services.</param>
 /// <param name="statusStore">The singleton store for caching results.</param>
+/// <param name="uptimeSummaryStore">The singleton store for caching 30-day uptime summaries.</param>
 /// <param name="hubContext">The hub context used to broadcast status updates.</param>
 /// <param name="configuration">The app configuration containing service entries.</param>
 /// <param name="logger">The logger instance.</param>
 /// <param name="tingClient">The Ting client for sending notifications.</param>
 /// <param name="dbContextFactory">The factory for creating database contexts.</param>
 /// <param name="uptimeService">The service used to compute 30-day uptime summaries.</param>
-public class HealthCheckService(IHttpClientFactory httpClientFactory, StatusStore statusStore, IHubContext<ServiceStatusHub> hubContext, IConfiguration configuration, ILogger<HealthCheckService> logger, TingClient tingClient, IDbContextFactory<DashboardDbContext> dbContextFactory, UptimeService uptimeService) : BackgroundService
+public class HealthCheckService(IHttpClientFactory httpClientFactory, StatusStore statusStore, UptimeSummaryStore uptimeSummaryStore, IHubContext<ServiceStatusHub> hubContext, IConfiguration configuration, ILogger<HealthCheckService> logger, TingClient tingClient, IDbContextFactory<DashboardDbContext> dbContextFactory, UptimeService uptimeService) : BackgroundService
 {
     /// <summary>
     /// Http client used to send requests to the services.
@@ -36,6 +37,11 @@ public class HealthCheckService(IHttpClientFactory httpClientFactory, StatusStor
     /// Memory cache used to store the results of the health checks.
     /// </summary>
     private readonly StatusStore StatusStore = statusStore;
+
+    /// <summary>
+    /// In-memory store for the latest computed uptime summaries, read by page models on page load.
+    /// </summary>
+    private readonly UptimeSummaryStore UptimeSummaryStore = uptimeSummaryStore;
 
     /// <summary>
     /// Hub context used to broadcast status updates to connected dashboard clients.
@@ -302,6 +308,7 @@ public class HealthCheckService(IHttpClientFactory httpClientFactory, StatusStor
         {
             // Create a new database context and retrieve the last 30 days of uptime records for the service
             UptimeSummary summary = await UptimeService.GetUptimeSummaryAsync(service.Name, cancellationToken);
+            UptimeSummaryStore.Set(service.Name, summary);
             await HubContext.Clients.All.SendAsync("UptimeUpdated", new { name = service.Name, uptimePercent = summary.UptimePercent, days = summary.Days.Select(d => new { date = d.Date.ToString("yyyy-MM-dd"), status = d.Status.ToString() }) }, cancellationToken);
         }
         catch (Exception ex)
@@ -309,4 +316,5 @@ public class HealthCheckService(IHttpClientFactory httpClientFactory, StatusStor
             Logger.LogWarning("Failed to broadcast uptime summary for {ServiceName}: {Message}", service.Name, ex.Message);
         }
     }
+}
 }
