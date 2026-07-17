@@ -9,34 +9,34 @@
 
 <div class="d-flex justify-content-between align-items-center gap-2 mb-2">
     <div class="d-flex align-items-center gap-2">
-        <div id="overall-status-card" class="card @Model.OverallStatusClass text-white px-3 py-1">
-            <span id="overall-status-text" class="fw-medium">@Model.OverallStatusText</span>
+        <div id="overall-status-card" class="card @Model.OverallStatusClass text-white px-2">
+            <span id="overall-status-text" class="fw-medium small">@Model.OverallStatusText</span>
         </div>
-        <div class="card bg-success text-white px-3 py-1">
-            <span id="online-count" class="fw-medium">@Model.OnlineCount</span>
+        <div class="card bg-success text-white px-2">
+            <span id="online-count" class="fw-medium small">@Model.OnlineCount</span>
         </div>
-        <div class="card bg-danger text-white px-3 py-1">
-            <span id="offline-count" class="fw-medium">@Model.OfflineCount</span>
+        <div class="card bg-danger text-white px-2">
+            <span id="offline-count" class="fw-medium small">@Model.OfflineCount</span>
         </div>
-        <div class="card bg-secondary text-white px-3 py-1">
-            <span id="pending-count" class="fw-medium">@Model.PendingCount</span>
+        <div class="card bg-secondary text-white px-2">
+            <span id="pending-count" class="fw-medium small">@Model.PendingCount</span>
         </div>
     </div>
     <div class="d-flex align-items-center gap-3">
         <span id="local-clock" class="text-secondary small"></span>
         <span id="utc-clock" class="text-secondary small"></span>
-        <a href="@Model.DiagramUrl" target="_blank" rel="noopener noreferrer" class="card text-decoration-none text-reset d-inline-flex flex-row align-items-center gap-2 px-3 py-2" style="cursor: pointer;">
+        <a href="@Model.DiagramUrl" target="_blank" rel="noopener noreferrer" class="card text-decoration-none text-reset d-inline-flex flex-row align-items-center gap-2 px-2 py-1 ms-2" style="cursor: pointer;">
             <img src="/Favicon?url=https://app.diagrams.net/" width="16" height="16" onerror="this.style.display='none'" />
             <span class="small fw-medium">Network Diagram</span>
         </a>
     </div>
 </div>
 
-<div class="row g-3 mb-5 mt-3">
+<div class="row g-3 mb-4 mt-2">
     @foreach (KeyValuePair<string, List<ServiceEntry>> device in singleService)
     {
         <div class="service-col">
-            <div class="mb-2">
+            <div class="mb-1">
                 <span class="fw-medium">@device.Value.First().Device</span>
                 <span class="text-secondary small ms-2">@device.Value.First().LocalIp</span>
             </div>
@@ -53,8 +53,8 @@
 
 @foreach (KeyValuePair<string, List<ServiceEntry>> device in multiService)
 {
-    <div class="mb-4 mt-5">
-        <div class="mb-2">
+    <div class="mb-3 mt-3">
+        <div class="mb-1">
             <span class="fw-medium">@device.Value.First().Device</span>
             <span class="text-secondary small ms-2">@device.Value.First().LocalIp</span>
         </div>
