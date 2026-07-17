@@ -7,15 +7,29 @@
     Dictionary<string, List<ServiceEntry>> multiService = Model.ServicesByDevice.Where(d => d.Value.Count > 1).OrderBy(d => d.Key).ToDictionary(d => d.Key, d => d.Value.OrderBy(s => s.Name).ToList());
 }
 
-<div class="d-flex justify-content-between align-items-center mb-2">
-    <div class="d-flex gap-3">
+<div class="d-flex justify-content-between align-items-center gap-2 mb-2">
+    <div class="d-flex align-items-center gap-2">
+        <div id="overall-status-card" class="card @Model.OverallStatusClass text-white px-3 py-1">
+            <span id="overall-status-text" class="fw-medium">@Model.OverallStatusText</span>
+        </div>
+        <div class="card bg-success text-white px-3 py-1">
+            <span id="online-count" class="fw-medium">@Model.OnlineCount</span>
+        </div>
+        <div class="card bg-danger text-white px-3 py-1">
+            <span id="offline-count" class="fw-medium">@Model.OfflineCount</span>
+        </div>
+        <div class="card bg-secondary text-white px-3 py-1">
+            <span id="pending-count" class="fw-medium">@Model.PendingCount</span>
+        </div>
+    </div>
+    <div class="d-flex align-items-center gap-3">
         <span id="local-clock" class="text-secondary small"></span>
         <span id="utc-clock" class="text-secondary small"></span>
+        <a href="@Model.DiagramUrl" target="_blank" rel="noopener noreferrer" class="card text-decoration-none text-reset d-inline-flex flex-row align-items-center gap-2 px-3 py-2" style="cursor: pointer;">
+            <img src="/Favicon?url=https://app.diagrams.net/" width="16" height="16" onerror="this.style.display='none'" />
+            <span class="small fw-medium">Network Diagram</span>
+        </a>
     </div>
-    <a href="@Model.DiagramUrl" target="_blank" rel="noopener noreferrer" class="card text-decoration-none text-reset d-inline-flex flex-row align-items-center gap-2 px-3 py-2" style="cursor: pointer;">
-        <img src="/Favicon?url=https://app.diagrams.net/" width="16" height="16" onerror="this.style.display='none'" />
-        <span class="small fw-medium">Network Diagram</span>
-    </a>
 </div>
 
 <div class="row g-3 mb-5 mt-3">

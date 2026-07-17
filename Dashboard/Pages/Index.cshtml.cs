@@ -52,6 +52,31 @@ public class IndexModel(StatusStore statusStore, IConfiguration configuration, U
     public string DiagramUrl { get; set; } = string.Empty;
 
     /// <summary>
+    /// Count of services currently reporting online.
+    /// </summary>
+    public int OnlineCount { get; set; }
+
+    /// <summary>
+    /// Count of services currently reporting offline.
+    /// </summary>
+    public int OfflineCount { get; set; }
+
+    /// <summary>
+    /// Count of services with no cached status yet.
+    /// </summary>
+    public int PendingCount { get; set; }
+
+    /// <summary>
+    /// Bootstrap background class for the overall status summary card: green when every service is online, red otherwise.
+    /// </summary>
+    public string OverallStatusClass { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Headline text for the overall status summary card.
+    /// </summary>
+    public string OverallStatusText { get; set; } = string.Empty;
+
+    /// <summary>
     /// Loads services from config and reads cached statuses and uptime summaries.
     /// </summary>
     public void OnGet()
@@ -63,5 +88,10 @@ public class IndexModel(StatusStore statusStore, IConfiguration configuration, U
         Statuses = StatusStore.GetAll();
         UptimeSummaries = UptimeSummaryStore.GetAll();
         DiagramUrl = Configuration.GetSection("Diagram")["Url"] ?? string.Empty;
+        OnlineCount = Statuses.Values.Count(status => status.IsOnline);
+        OfflineCount = Statuses.Values.Count(status => !status.IsOnline);
+        PendingCount = services.Count - Statuses.Count;
+        OverallStatusClass = OfflineCount == 0 ? "bg-success" : "bg-danger";
+        OverallStatusText = OfflineCount == 0 ? "All Services Online" : $"{OfflineCount} Service{(OfflineCount == 1 ? string.Empty : "s")} Offline";
     }
 }

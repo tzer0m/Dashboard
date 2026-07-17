@@ -94,6 +94,46 @@ function handleStatusUpdate(status) {
     const btn = card.querySelector('.refresh-btn');
     btn.classList.remove('checking');
     btn.disabled = false;
+
+    recomputeStatusSummary();
+}
+
+/**
+ * Recomputes the top-right status summary (overall card plus online/offline/pending counts)
+ * by reading the current badge state off every service card on the page. Called whenever a
+ * status push arrives, so the summary stays in sync without a full page reload.
+ */
+function recomputeStatusSummary() {
+    const badges = document.querySelectorAll('[data-service-name] .badge');
+    let online = 0;
+    let offline = 0;
+    let pending = 0;
+
+    badges.forEach(badge => {
+        if (badge.classList.contains('bg-success')) online++;
+        else if (badge.classList.contains('bg-danger')) offline++;
+        else pending++;
+    });
+
+    const onlineEl = document.getElementById('online-count');
+    const offlineEl = document.getElementById('offline-count');
+    const pendingEl = document.getElementById('pending-count');
+    if (onlineEl) onlineEl.textContent = online;
+    if (offlineEl) offlineEl.textContent = offline;
+    if (pendingEl) pendingEl.textContent = pending;
+
+    const overallCard = document.getElementById('overall-status-card');
+    const overallText = document.getElementById('overall-status-text');
+    if (!overallCard || !overallText) return;
+
+    overallCard.classList.remove('bg-success', 'bg-danger');
+    if (offline === 0) {
+        overallCard.classList.add('bg-success');
+        overallText.textContent = 'All Services Online';
+    } else {
+        overallCard.classList.add('bg-danger');
+        overallText.textContent = `${offline} Service${offline === 1 ? '' : 's'} Offline`;
+    }
 }
 
 /**
