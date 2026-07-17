@@ -47,6 +47,11 @@ public class IndexModel(StatusStore statusStore, IConfiguration configuration, U
     public IReadOnlyDictionary<string, UptimeSummary> UptimeSummaries { get; set; } = new Dictionary<string, UptimeSummary>();
 
     /// <summary>
+    /// The live diagrams.net viewer URL for the rack cabling diagram, read from config.
+    /// </summary>
+    public string DiagramUrl { get; set; } = string.Empty;
+
+    /// <summary>
     /// Loads services from config and reads cached statuses and uptime summaries.
     /// </summary>
     public void OnGet()
@@ -57,5 +62,6 @@ public class IndexModel(StatusStore statusStore, IConfiguration configuration, U
         ServicesByDevice = services.GroupBy(s => s.LocalIp).ToDictionary(g => g.Key, g => g.ToList());
         Statuses = StatusStore.GetAll();
         UptimeSummaries = UptimeSummaryStore.GetAll();
+        DiagramUrl = Configuration.GetSection("Diagram")["Url"] ?? string.Empty;
     }
 }
