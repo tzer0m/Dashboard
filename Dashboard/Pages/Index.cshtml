@@ -12,13 +12,13 @@
         <div id="overall-status-card" class="card @Model.OverallStatusClass text-white px-2">
             <span id="overall-status-text" class="fw-medium small">@Model.OverallStatusText</span>
         </div>
-        <div class="card bg-success text-white px-2">
+        <div id="online-count-card" class="card bg-success text-white px-2" style="@(Model.OnlineCount > 0 ? "" : "display: none;")">
             <span id="online-count" class="fw-medium small">@Model.OnlineCount</span>
         </div>
-        <div class="card bg-danger text-white px-2">
+        <div id="offline-count-card" class="card bg-danger text-white px-2" style="@(Model.OfflineCount > 0 ? "" : "display: none;")">
             <span id="offline-count" class="fw-medium small">@Model.OfflineCount</span>
         </div>
-        <div class="card bg-secondary text-white px-2">
+        <div id="pending-count-card" class="card bg-secondary text-white px-2" style="@(Model.PendingCount > 0 ? "" : "display: none;")">
             <span id="pending-count" class="fw-medium small">@Model.PendingCount</span>
         </div>
     </div>

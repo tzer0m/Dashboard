@@ -122,6 +122,13 @@ function recomputeStatusSummary() {
     if (offlineEl) offlineEl.textContent = offline;
     if (pendingEl) pendingEl.textContent = pending;
 
+    const onlineCard = document.getElementById('online-count-card');
+    const offlineCard = document.getElementById('offline-count-card');
+    const pendingCard = document.getElementById('pending-count-card');
+    if (onlineCard) onlineCard.style.display = online > 0 ? '' : 'none';
+    if (offlineCard) offlineCard.style.display = offline > 0 ? '' : 'none';
+    if (pendingCard) pendingCard.style.display = pending > 0 ? '' : 'none';
+
     const overallCard = document.getElementById('overall-status-card');
     const overallText = document.getElementById('overall-status-text');
     if (!overallCard || !overallText) return;
