@@ -38,7 +38,7 @@
         <div class="service-col">
             <div class="mb-1">
                 <span class="fw-medium">@device.Value.First().Device</span>
-                <span class="text-secondary small ms-2">@device.Value.First().LocalIp</span>
+                <span class="text-secondary ms-2" style="font-size: 1rem;">@device.Value.First().LocalIp</span>
             </div>
             @await Html.PartialAsync("_ServiceCard", new ServiceCard
             {
@@ -56,7 +56,7 @@
     <div class="mb-3 mt-3">
         <div class="mb-1">
             <span class="fw-medium">@device.Value.First().Device</span>
-            <span class="text-secondary small ms-2">@device.Value.First().LocalIp</span>
+            <span class="text-secondary ms-2" style="font-size: 1rem;">@device.Value.First().LocalIp</span>
         </div>
         <div class="row g-3">
             @foreach (ServiceEntry service in device.Value)

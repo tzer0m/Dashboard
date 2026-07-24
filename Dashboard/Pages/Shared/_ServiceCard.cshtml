@@ -5,9 +5,9 @@
     string badgeClass = Model.Status == null ? "bg-secondary" : Model.Status.IsOnline ? "bg-success" : "bg-danger";
     string badgeText = Model.Status switch
     {
-        null => "Pending",
-        { IsOnline: true } => "Online",
-        _ => "Offline"
+        null => "–",
+        { IsOnline: true } => "✓",
+        _ => "✕"
     };
     string displayUrl = Model.Service.Url.Replace("https://", "").Replace("http://", "");
     string faviconSrc = Model.FaviconUrl ?? $"/Favicon?url={Uri.EscapeDataString(Model.Service.Url)}";
@@ -68,7 +68,7 @@
                 }
             </div>
             <div class="d-flex justify-content-between align-items-center mb-1">
-                <p class="small fs-6 mb-0 text-secondary">@displayUrl</p>
+                <span class="text-secondary" style="font-size: 0.75rem;">@displayUrl</span>
                 <span class="uptime-percent small fs-6 mb-0 @uptimeClass">@uptimeText</span>
             </div>
             <div class="mt-2 text-secondary" style="font-size: 0.75rem;">
