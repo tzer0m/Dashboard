@@ -64,7 +64,7 @@ function handleStatusUpdate(status) {
     const badge = card.querySelector('.badge');
     badge.classList.remove('bg-success', 'bg-danger', 'bg-secondary');
     badge.classList.add(isOnline ? 'bg-success' : 'bg-danger');
-    badge.textContent = isOnline ? 'Online' : 'Offline';
+    badge.textContent = isOnline ? '✓' : '✕';
     badge.title = isOnline ? '' : (status.error ?? '');
 
     // Response time, colour-coded the same way the server-rendered version is
