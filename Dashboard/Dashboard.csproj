@@ -6,17 +6,9 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.9">
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
-    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.2" />
-    <PackageReference Include="t0m.Ting" Version="1.0.4" />
-  </ItemGroup>
-
   <PropertyGroup>
     <NoWarn>$(NoWarn);CA1873</NoWarn>
+    <UserSecretsId>06cbc069-cc6f-40af-b2c5-410ba1a28877</UserSecretsId>
 </PropertyGroup>
 
 </Project>

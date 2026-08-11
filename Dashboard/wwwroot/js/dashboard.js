@@ -37,7 +37,6 @@ function initDashboardConnection() {
         .build();
 
     connection.on("ServiceStatusUpdated", handleStatusUpdate);
-    connection.on("UptimeUpdated", handleUptimeUpdate);
 
     connection.start().catch(err => console.error("SignalR connection failed:", err));
 }
@@ -140,48 +139,6 @@ function recomputeStatusSummary() {
     } else {
         overallCard.classList.add('bg-danger');
         overallText.textContent = `${offline} Service${offline === 1 ? '' : 's'} Offline`;
-    }
-}
-
-/**
- * Updates a single service card's uptime percentage and 30-day bar strip in place
- * when a daily uptime recompute is broadcast from the server.
- *
- * @param {Object} uptime - The uptime summary payload broadcast from the server.
- * @param {string} uptime.name - The service name, used to find the matching card.
- * @param {number|null} uptime.uptimePercent - The 30-day uptime percentage, or null if no data.
- * @param {Array<{date: string, status: string}>} uptime.days - The 30 daily bar statuses, oldest first.
- */
-function handleUptimeUpdate(uptime) {
-    const card = document.querySelector(`[data-service-name="${uptime.name}"]`);
-    if (!card) return;
-
-    const percentEl = card.querySelector('.uptime-percent');
-    if (percentEl) {
-        percentEl.classList.remove('uptime-good', 'uptime-warn', 'uptime-bad', 'text-secondary');
-        if (uptime.uptimePercent == null) {
-            percentEl.textContent = '—';
-            percentEl.classList.add('text-secondary');
-        } else {
-            percentEl.textContent = `${uptime.uptimePercent.toFixed(1)}%`;
-            if (uptime.uptimePercent >= 99) percentEl.classList.add('uptime-good');
-            else if (uptime.uptimePercent >= 95) percentEl.classList.add('uptime-warn');
-            else percentEl.classList.add('uptime-bad');
-        }
-    }
-
-    const stripEl = card.querySelector('.uptime-strip');
-    if (stripEl) {
-        stripEl.innerHTML = '';
-        uptime.days.forEach(day => {
-            const bar = document.createElement('span');
-            let barClass = 'uptime-bar-up';
-            if (day.status === 'Down') barClass = 'uptime-bar-down';
-            else if (day.status === 'Unknown') barClass = 'uptime-bar-unknown';
-            bar.className = `uptime-bar ${barClass}`;
-            bar.title = new Date(day.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' });
-            stripEl.appendChild(bar);
-        });
     }
 }
 

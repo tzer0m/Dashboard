@@ -1,5 +1,4 @@
 ﻿@using Microsoft.AspNetCore.WebUtilities
-@using Dashboard.Models.Uptime
 @model Dashboard.Models.ServiceCard
 @{
     string badgeClass = Model.Status == null ? "bg-secondary" : Model.Status.IsOnline ? "bg-success" : "bg-danger";
@@ -13,15 +12,6 @@
     string faviconSrc = Model.FaviconUrl ?? $"/Favicon?url={Uri.EscapeDataString(Model.Service.Url)}";
     bool isGlobal = Model.Service.Access == "Global";
     string badgeTitle = Model.Status?.StatusCode != null ? ReasonPhrases.GetReasonPhrase(Model.Status.StatusCode.Value) : Model.Status?.Error ?? string.Empty;
-
-    string uptimeClass = Model.Uptime?.UptimePercent switch
-    {
-        null => "text-secondary",
-        >= 99 => "uptime-good",
-        >= 95 => "uptime-warn",
-        _ => "uptime-bad"
-    };
-    string uptimeText = Model.Uptime?.UptimePercent is double pct ? $"{pct.ToString("F1")}%" : "—";
 }
 
 <div class="card text-decoration-none text-reset d-block position-relative" data-service-name="@Model.Service.Name" style="cursor: pointer;">
@@ -69,7 +59,6 @@
             </div>
             <div class="d-flex justify-content-between align-items-center mb-1">
                 <span class="text-secondary" style="font-size: 0.75rem;">@displayUrl</span>
-                <span class="uptime-percent small fs-6 mb-0 @uptimeClass">@uptimeText</span>
             </div>
             <div class="mt-2 text-secondary" style="font-size: 0.75rem;">
                 <span class="response-time @(Model.Status != null ? (Model.Status.ResponseTimeMs <= 200 ? "response-time-fast" : Model.Status.ResponseTimeMs <= 500 ? "response-time-moderate" : "response-time-slow") : "")">@(Model.Status != null ? $"{Model.Status.ResponseTimeMs} ms" : "—")</span>
@@ -80,21 +69,6 @@
                 }
                 <span class="last-checked ms-2">@(Model.Status != null ? Model.Status.LastChecked.ToString("HH:mm:ss") + " UTC" : "—")</span>
             </div>
-            @if (Model.Uptime != null)
-            {
-                <div class="uptime-strip mt-2">
-                    @foreach (DailyUptimeBar bar in Model.Uptime.Days)
-                    {
-                        string barClass = bar.Status switch
-                        {
-                            UptimeDayStatus.Down => "uptime-bar-down",
-                            UptimeDayStatus.Unknown => "uptime-bar-unknown",
-                            _ => "uptime-bar-up"
-                        };
-                        <span class="uptime-bar @barClass" title="@bar.Date.ToString("dd MMM")"></span>
-                    }
-                </div>
-            }
         </div>
     </a>
 </div>
