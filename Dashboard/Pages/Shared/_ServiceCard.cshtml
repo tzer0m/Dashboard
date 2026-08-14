@@ -1,5 +1,4 @@
-﻿@using Microsoft.AspNetCore.WebUtilities
-@model Dashboard.Models.ServiceCard
+﻿@model Dashboard.Models.ServiceCard
 @{
     string badgeClass = Model.Status == null ? "bg-secondary" : Model.Status.IsOnline ? "bg-success" : "bg-danger";
     string badgeText = Model.Status switch
@@ -11,7 +10,7 @@
     string displayUrl = Model.Service.Url.Replace("https://", "").Replace("http://", "");
     string faviconSrc = Model.FaviconUrl ?? $"/Favicon?url={Uri.EscapeDataString(Model.Service.Url)}";
     bool isGlobal = Model.Service.Access == "Global";
-    string badgeTitle = Model.Status?.StatusCode != null ? ReasonPhrases.GetReasonPhrase(Model.Status.StatusCode.Value) : Model.Status?.Error ?? string.Empty;
+    string badgeTitle = Model.Status?.Error ?? string.Empty;
 }
 
 <div class="card text-decoration-none text-reset d-block position-relative" data-service-name="@Model.Service.Name" style="cursor: pointer;">
@@ -62,7 +61,6 @@
             </div>
             <div class="mt-2 text-secondary" style="font-size: 0.75rem;">
                 <span class="response-time @(Model.Status != null ? (Model.Status.ResponseTimeMs <= 200 ? "response-time-fast" : Model.Status.ResponseTimeMs <= 500 ? "response-time-moderate" : "response-time-slow") : "")">@(Model.Status != null ? $"{Model.Status.ResponseTimeMs} ms" : "—")</span>
-                <span class="status-code ms-2">@(Model.Status?.StatusCode != null ? $"HTTP {Model.Status.StatusCode}" : "—")</span>
                 @if (Model.Service.LocalPort != null)
                 {
                     <span class="ms-2">@Model.Service.LocalPort</span>

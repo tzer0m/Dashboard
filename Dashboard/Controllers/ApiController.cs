@@ -11,12 +11,12 @@ namespace Dashboard.Controllers;
 [ApiController]
 [Route("[controller]")]
 [ServiceFilter(typeof(ApiKeyAuthFilter))]
-public sealed class ApiController(HealthCheckService healthCheckService, GitHubBadgeService gitHubBadgeService, StatusStore statusStore) : ControllerBase
+public sealed class ApiController(KumaStatusService kumaStatusService, GitHubBadgeService gitHubBadgeService, StatusStore statusStore) : ControllerBase
 {
     /// <summary>
-    /// Health check service used to retrieve the status of configured services.
+    /// Status service used to retrieve the configured list of services.
     /// </summary>
-    private readonly HealthCheckService HealthCheckService = healthCheckService;
+    private readonly KumaStatusService KumaStatusService = kumaStatusService;
 
     /// <summary>
     /// GitHub badge service used to retrieve deploy badge data for configured services.
@@ -36,7 +36,7 @@ public sealed class ApiController(HealthCheckService healthCheckService, GitHubB
     public async Task<ActionResult<List<ServiceInformation>>> GetStatusAsync(CancellationToken cancellationToken)
     {
         List<ServiceInformation> result = [];
-        foreach (ServiceEntry service in HealthCheckService.ServiceEntries)
+        foreach (ServiceEntry service in KumaStatusService.ServiceEntries)
         {
             // Retrieve the last known status from the status store and the deploy badge data from GitHub
             ServiceStatus? health = StatusStore.Get(service.Name);

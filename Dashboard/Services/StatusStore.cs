@@ -5,7 +5,7 @@ namespace Dashboard.Services;
 
 /// <summary>
 /// Singleton in-memory store for cached service health check results.
-/// Written to by <see cref="HealthCheckService"/> and read by page models.
+/// Written to by <see cref="KumaStatusService"/> and read by page models.
 /// </summary>
 public class StatusStore
 {

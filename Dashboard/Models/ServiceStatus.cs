@@ -6,17 +6,12 @@
 public class ServiceStatus
 {
     /// <summary>
-    /// Gets or sets whether the service responded successfully.
+    /// Gets or sets whether the service responded successfully, as reported by Kuma.
     /// </summary>
     public bool IsOnline { get; set; }
 
     /// <summary>
-    /// Gets or sets the HTTP status code returned by the service, if any.
-    /// </summary>
-    public int? StatusCode { get; set; }
-
-    /// <summary>
-    /// Gets or sets the response time in milliseconds.
+    /// Gets or sets the response time in milliseconds, as reported by Kuma.
     /// </summary>
     public long ResponseTimeMs { get; set; }
 

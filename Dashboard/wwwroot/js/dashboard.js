@@ -48,7 +48,6 @@ function initDashboardConnection() {
  * @param {Object} status - The status payload broadcast from the server.
  * @param {string} status.name - The service name, used to find the matching card.
  * @param {boolean} status.isOnline - Whether the service responded successfully.
- * @param {number|null} status.statusCode - The HTTP status code returned, if any.
  * @param {number} status.responseTimeMs - Response time in milliseconds.
  * @param {string} status.lastChecked - ISO timestamp of the check, in UTC.
  * @param {string|null} status.error - Error message if the service was unreachable.
@@ -74,12 +73,6 @@ function handleStatusUpdate(status) {
         if (status.responseTimeMs <= 200) responseTimeEl.classList.add('response-time-fast');
         else if (status.responseTimeMs <= 500) responseTimeEl.classList.add('response-time-moderate');
         else responseTimeEl.classList.add('response-time-slow');
-    }
-
-    // Status code — shows the HTTP status if present, or a placeholder otherwise
-    const statusCodeEl = card.querySelector('.status-code');
-    if (statusCodeEl) {
-        statusCodeEl.textContent = status.statusCode != null ? `HTTP ${status.statusCode}` : '—';
     }
 
     // Last-checked timestamp, formatted the same way as the server-rendered HH:mm:ss
