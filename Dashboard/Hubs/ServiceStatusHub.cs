@@ -11,11 +11,10 @@ public class ServiceStatusHub(KumaStatusService kumaStatusService) : Hub
     private readonly KumaStatusService KumaStatusService = kumaStatusService;
 
     /// <summary>
-    /// Triggers an immediate refresh from Kuma, bypassing the normal polling interval. Broadcasts to all connected clients since Kuma's API returns every monitor's status in one response.
+    /// Triggers an immediate refresh from Kuma for every configured service, bypassing the normal polling interval. Broadcasts to all connected clients.
     /// </summary>
-    /// <param name="serviceName">The name of the service that requested the refresh.</param>
-    public async Task RequestRefresh(string serviceName)
+    public async Task RequestRefresh()
     {
-        await KumaStatusService.RefreshServiceAsync(serviceName);
+        await KumaStatusService.RefreshAllAsync();
     }
 }

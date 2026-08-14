@@ -14,12 +14,6 @@
 }
 
 <div class="card text-decoration-none text-reset d-block position-relative" data-service-name="@Model.Service.Name" style="cursor: pointer;">
-    <button type="button" class="refresh-btn position-absolute end-0 m-3" style="bottom: 1.75rem;" title="Refresh now" onclick="event.stopPropagation(); event.preventDefault(); refreshService('@Model.Service.Name', this);">
-        <svg class="refresh-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="23 4 23 10 17 10"></polyline>
-            <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
-        </svg>
-    </button>
     <a href="@Model.Service.Url" target="_blank" rel="noopener noreferrer" class="card text-decoration-none text-reset d-block" style="cursor: pointer;">
         <div class="card-body">
             <div class="d-flex align-items-center gap-2 mb-2">
@@ -56,16 +50,15 @@
                     <img src="@badgeUrl" alt="Deploy status" style="cursor: pointer;" onclick="event.stopPropagation(); event.preventDefault(); window.open('@repoUrl', '_blank', 'noopener,noreferrer');" />
                 }
             </div>
-            <div class="d-flex justify-content-between align-items-center mb-1">
-                <span class="text-secondary" style="font-size: 0.75rem;">@displayUrl</span>
-            </div>
-            <div class="mt-2 text-secondary" style="font-size: 0.75rem;">
-                <span class="response-time @(Model.Status != null ? (Model.Status.ResponseTimeMs <= 200 ? "response-time-fast" : Model.Status.ResponseTimeMs <= 500 ? "response-time-moderate" : "response-time-slow") : "")">@(Model.Status != null ? $"{Model.Status.ResponseTimeMs} ms" : "—")</span>
-                @if (Model.Service.LocalPort != null)
-                {
-                    <span class="ms-2">@Model.Service.LocalPort</span>
-                }
-                <span class="last-checked ms-2">@(Model.Status != null ? Model.Status.LastChecked.ToString("HH:mm:ss") + " UTC" : "—")</span>
+            <div class="d-flex justify-content-between align-items-center mt-2 text-secondary" style="font-size: 0.75rem;">
+                <span>@displayUrl</span>
+                <span>
+                    <span class="response-time @(Model.Status != null ? (Model.Status.ResponseTimeMs <= 200 ? "response-time-fast" : Model.Status.ResponseTimeMs <= 500 ? "response-time-moderate" : "response-time-slow") : "")">@(Model.Status != null ? $"{Model.Status.ResponseTimeMs} ms" : "—")</span>
+                    @if (Model.Service.LocalPort != null)
+                    {
+                        <span class="ms-2">@Model.Service.LocalPort</span>
+                    }
+                </span>
             </div>
         </div>
     </a>

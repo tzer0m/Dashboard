@@ -42,8 +42,9 @@ function initDashboardConnection() {
 }
 
 /**
- * Updates a single service card in place when a status push arrives, either from the normal 60-second health check cycle or a manual refresh.
- * Matches the card by its data-service-name attribute, and patches every piece of status info shown on the card: badge, tooltip, response time, status code, and last-checked timestamp.
+ * Updates a single service card in place when a status push arrives, either from the normal polling cycle or a manual refresh.
+ * Matches the card by its data-service-name attribute, and patches the status info shown on the card: badge, tooltip, and response time.
+ * Also bumps the page-level "last updated" timestamp, since every update now comes from a full refresh of all services together.
  *
  * @param {Object} status - The status payload broadcast from the server.
  * @param {string} status.name - The service name, used to find the matching card.
@@ -53,6 +54,8 @@ function initDashboardConnection() {
  * @param {string|null} status.error - Error message if the service was unreachable.
  */
 function handleStatusUpdate(status) {
+    updateLastUpdatedDisplay(status.lastChecked);
+
     const card = document.querySelector(`[data-service-name="${status.name}"]`);
     if (!card) return;
 
@@ -75,19 +78,20 @@ function handleStatusUpdate(status) {
         else responseTimeEl.classList.add('response-time-slow');
     }
 
-    // Last-checked timestamp, formatted the same way as the server-rendered HH:mm:ss
-    const lastCheckedEl = card.querySelector('.last-checked');
-    if (lastCheckedEl) {
-        const checkedDate = new Date(status.lastChecked);
-        lastCheckedEl.textContent = `${checkedDate.toISOString().substring(11, 19)} UTC`;
-    }
-
-    // Re-enable the refresh button now that a result has come back, whether it was this button's own request or the regular 60s cycle.
-    const btn = card.querySelector('.refresh-btn');
-    btn.classList.remove('checking');
-    btn.disabled = false;
-
     recomputeStatusSummary();
+}
+
+/**
+ * Updates the page-level "last updated" timestamp shown next to the global refresh button.
+ *
+ * @param {string} isoTimestamp - ISO timestamp of the check that triggered this update, in UTC.
+ */
+function updateLastUpdatedDisplay(isoTimestamp) {
+    const lastUpdatedEl = document.getElementById('last-updated');
+    if (!lastUpdatedEl) return;
+
+    const checkedDate = new Date(isoTimestamp);
+    lastUpdatedEl.textContent = `Updated ${checkedDate.toISOString().substring(11, 19)} UTC`;
 }
 
 /**
@@ -136,19 +140,23 @@ function recomputeStatusSummary() {
 }
 
 /**
- * Triggers an immediate, out-of-band health check for a single service, bypassing the normal 60-second cycle. Called from the refresh button on each service card.
- *
- * @param {string} serviceName - The name of the service to refresh.
- * @param {HTMLElement} btnEl - The button element that was clicked, used to show a loading state.
+ * Triggers an immediate refresh of every service's status from Kuma, bypassing the normal polling interval. Called from the single global refresh button in the page header.
  */
-function refreshService(serviceName, btnEl) {
-    btnEl.classList.add('checking');
-    btnEl.disabled = true;
-    connection.invoke("RequestRefresh", serviceName).catch(err => {
+async function refreshAll() {
+    const btn = document.getElementById('global-refresh-btn');
+    if (!btn) return;
+
+    btn.classList.add('checking');
+    btn.disabled = true;
+    try {
+        // Resolves once the server has finished re-fetching from Kuma and broadcasting every update, so it's safe to stop spinning here rather than tracking individual card updates.
+        await connection.invoke("RequestRefresh");
+    } catch (err) {
         console.error(err);
-        btnEl.classList.remove('checking');
-        btnEl.disabled = false;
-    });
+    } finally {
+        btn.classList.remove('checking');
+        btn.disabled = false;
+    }
 }
 
 // Establish the connection once the DOM is ready, so querySelector calls in handleStatusUpdate can reliably find the service cards.

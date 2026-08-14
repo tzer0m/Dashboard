@@ -65,6 +65,11 @@ public class IndexModel(StatusStore statusStore, IConfiguration configuration) :
     public string OverallStatusText { get; set; } = string.Empty;
 
     /// <summary>
+    /// The most recent timestamp across all cached service statuses, shown at the top of the page rather than per-card since a refresh now always updates everything at once. Null if no statuses are cached yet.
+    /// </summary>
+    public DateTime? LastUpdated { get; set; }
+
+    /// <summary>
     /// Loads services from config and reads cached statuses.
     /// </summary>
     public void OnGet()
@@ -80,5 +85,6 @@ public class IndexModel(StatusStore statusStore, IConfiguration configuration) :
         PendingCount = services.Count - Statuses.Count;
         OverallStatusClass = OfflineCount == 0 ? "bg-success" : "bg-danger";
         OverallStatusText = OfflineCount == 0 ? "All Services Online" : $"{OfflineCount} Service{(OfflineCount == 1 ? string.Empty : "s")} Offline";
+        LastUpdated = Statuses.Count > 0 ? Statuses.Values.Max(status => status.LastChecked) : null;
     }
 }

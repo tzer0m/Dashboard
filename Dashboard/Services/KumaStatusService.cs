@@ -91,20 +91,10 @@ public class KumaStatusService(IHttpClientFactory httpClientFactory, StatusStore
     }
 
     /// <summary>
-    /// Triggers an immediate refresh, used by a manual refresh button. Kuma's public API only exposes all monitors in one response, so a "single service" refresh re-fetches everything and re-applies it — cheap, since the payload is small.
-    /// </summary>
-    /// <param name="serviceName">The name of the service that requested the refresh, used only for logging context.</param>
-    public async Task RefreshServiceAsync(string serviceName)
-    {
-        Logger.LogInformation("Manual refresh requested for {ServiceName}", serviceName);
-        await RefreshAllAsync(CancellationToken.None);
-    }
-
-    /// <summary>
-    /// Fetches the current monitor list and latest heartbeats from Kuma, matches them against the configured services by name, and updates and broadcasts each match.
+    /// Fetches the current monitor list and latest heartbeats from Kuma, matches them against the configured services by name, and updates and broadcasts each match. Used both by the polling loop and by the page's single global refresh button — Kuma's public API only exposes all monitors in one response, so there's no cheaper way to refresh "just one" service.
     /// </summary>
     /// <param name="cancellationToken">Token that signals when the operation should stop.</param>
-    private async Task RefreshAllAsync(CancellationToken cancellationToken)
+    public async Task RefreshAllAsync(CancellationToken cancellationToken = default)
     {
         try
         {
