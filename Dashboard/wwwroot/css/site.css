@@ -106,3 +106,38 @@ body {
     color: #dc3545;
 }
 
+.header-grid {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-areas: "status diagram" "updated clocks";
+    align-items: center;
+    gap: 0.5rem 1rem;
+}
+
+.header-status {
+    grid-area: status;
+    min-width: 0;
+}
+
+.header-updated {
+    grid-area: updated;
+    min-width: 0;
+}
+
+.header-clocks {
+    grid-area: clocks;
+    justify-self: end;
+}
+
+.header-diagram {
+    grid-area: diagram;
+    justify-self: end;
+}
+
+@media (min-width: 992px) {
+    .header-grid {
+        grid-template-columns: auto auto 1fr auto auto;
+        grid-template-areas: "status updated . clocks diagram";
+    }
+}
+

@@ -7,36 +7,38 @@
     Dictionary<string, List<ServiceEntry>> multiService = Model.ServicesByDevice.Where(d => d.Value.Count > 1).OrderBy(d => d.Key).ToDictionary(d => d.Key, d => d.Value.OrderBy(s => s.Name).ToList());
 }
 
-<div class="d-flex justify-content-between align-items-center gap-2 mb-2">
-    <div class="d-flex align-items-center gap-2">
-        <div id="overall-status-card" class="card @Model.OverallStatusClass text-white px-2">
-            <span id="overall-status-text" class="fw-medium small">@Model.OverallStatusText</span>
+<div class="header-grid mb-2">
+    <div class="header-status d-flex flex-wrap align-items-center gap-2">
+        <div id="overall-status-card" class="card @Model.OverallStatusClass text-white px-2 flex-shrink-0">
+            <span id="overall-status-text" class="fw-medium small text-nowrap">@Model.OverallStatusText</span>
         </div>
-        <div id="online-count-card" class="card bg-success text-white px-2" style="@(Model.OnlineCount > 0 ? "" : "display: none;")">
-            <span id="online-count" class="fw-medium small">@Model.OnlineCount</span>
+        <div id="online-count-card" class="card bg-success text-white px-2 flex-shrink-0" style="@(Model.OnlineCount > 0 ? "" : "display: none;")">
+            <span id="online-count" class="fw-medium small text-nowrap">@Model.OnlineCount</span>
         </div>
-        <div id="offline-count-card" class="card bg-danger text-white px-2" style="@(Model.OfflineCount > 0 ? "" : "display: none;")">
-            <span id="offline-count" class="fw-medium small">@Model.OfflineCount</span>
+        <div id="offline-count-card" class="card bg-danger text-white px-2 flex-shrink-0" style="@(Model.OfflineCount > 0 ? "" : "display: none;")">
+            <span id="offline-count" class="fw-medium small text-nowrap">@Model.OfflineCount</span>
         </div>
-        <div id="pending-count-card" class="card bg-secondary text-white px-2" style="@(Model.PendingCount > 0 ? "" : "display: none;")">
-            <span id="pending-count" class="fw-medium small">@Model.PendingCount</span>
+        <div id="pending-count-card" class="card bg-secondary text-white px-2 flex-shrink-0" style="@(Model.PendingCount > 0 ? "" : "display: none;")">
+            <span id="pending-count" class="fw-medium small text-nowrap">@Model.PendingCount</span>
         </div>
-        <span id="last-updated" class="text-secondary small ms-2">@(Model.LastUpdated != null ? $"Updated {Model.LastUpdated.Value:HH:mm:ss} UTC" : "—")</span>
-        <button type="button" id="global-refresh-btn" class="refresh-btn" title="Refresh all" onclick="refreshAll();">
+    </div>
+    <div class="header-updated d-flex flex-wrap align-items-center gap-2">
+        <span id="last-updated" class="text-secondary small text-nowrap">@(Model.LastUpdated != null ? $"Updated {Model.LastUpdated.Value:HH:mm:ss} UTC" : "—")</span>
+        <button type="button" id="global-refresh-btn" class="refresh-btn flex-shrink-0" title="Refresh all" onclick="refreshAll();">
             <svg class="refresh-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="23 4 23 10 17 10"></polyline>
                 <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
             </svg>
         </button>
     </div>
-    <div class="d-flex align-items-center gap-3">
-        <span id="local-clock" class="text-secondary small"></span>
-        <span id="utc-clock" class="text-secondary small"></span>
-        <a href="@Model.DiagramUrl" target="_blank" rel="noopener noreferrer" class="card text-decoration-none text-reset d-inline-flex flex-row align-items-center gap-2 px-2 py-1 ms-2" style="cursor: pointer;">
-            <img src="/Favicon?url=https://app.diagrams.net/" width="16" height="16" onerror="this.style.display='none'" />
-            <span class="small fw-medium">Network Diagram</span>
-        </a>
+    <div class="header-clocks d-flex flex-wrap align-items-center gap-3">
+        <span id="utc-clock" class="text-secondary small text-nowrap"></span>
+        <span id="local-clock" class="text-secondary small text-nowrap"></span>
     </div>
+    <a href="@Model.DiagramUrl" target="_blank" rel="noopener noreferrer" class="header-diagram card text-decoration-none text-reset d-inline-flex flex-row flex-shrink-0 align-items-center gap-2 px-2 py-1" style="cursor: pointer;">
+        <img src="/Favicon?url=https://app.diagrams.net/" width="16" height="16" onerror="this.style.display='none'" />
+        <span class="small fw-medium text-nowrap">Network Diagram</span>
+    </a>
 </div>
 
 <div class="row g-3 mb-4 mt-2">
