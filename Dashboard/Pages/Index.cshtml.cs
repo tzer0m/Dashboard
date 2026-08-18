@@ -84,7 +84,7 @@ public class IndexModel(StatusStore statusStore, IConfiguration configuration) :
         OfflineCount = Statuses.Values.Count(status => !status.IsOnline);
         PendingCount = services.Count - Statuses.Count;
         OverallStatusClass = OfflineCount == 0 ? "bg-success" : "bg-danger";
-        OverallStatusText = OfflineCount == 0 ? "All Services Online" : $"{OfflineCount} Service{(OfflineCount == 1 ? string.Empty : "s")} Offline";
+        OverallStatusText = OfflineCount == 0 ? "All Online" : $"{OfflineCount} Offline";
         LastUpdated = Statuses.Count > 0 ? Statuses.Values.Max(status => status.LastChecked) : null;
     }
 }
