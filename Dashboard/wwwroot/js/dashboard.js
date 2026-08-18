@@ -91,7 +91,7 @@ function updateLastUpdatedDisplay(isoTimestamp) {
     if (!lastUpdatedEl) return;
 
     const checkedDate = new Date(isoTimestamp);
-    lastUpdatedEl.textContent = `Updated ${checkedDate.toISOString().substring(11, 19)} UTC`;
+    lastUpdatedEl.textContent = `${checkedDate.toISOString().substring(11, 19)} UTC`;
 }
 
 /**
