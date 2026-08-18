@@ -2,7 +2,7 @@
 
 [![Deploy](https://github.com/tzer0m/Dashboard/actions/workflows/deploy.yml/badge.svg)](https://github.com/tzer0m/Dashboard/actions/workflows/deploy.yml)
 
-A central status page for my homelab, live at [tzer0m.co.uk](https://tzer0m.co.uk). It shows every self-hosted service in one place — up/down status, response time, and the latest deploy result — and pushes updates to connected clients in real time.
+A central status page for a self-hosted homelab. It shows every service in one place — up/down status, response time, and the latest deploy result — and pushes updates to connected clients in real time.
 
 ## Features
 
@@ -13,7 +13,7 @@ A central status page for my homelab, live at [tzer0m.co.uk](https://tzer0m.co.u
 - **Per-service metadata** — each configured service records its name, URL, type, whether it's locally or globally accessible, its host device, local IP/port, whether it requires auth, and an optional favicon override.
 - **Network diagram** — embeds a draw.io network diagram alongside the service list.
 
-## Tech Stack
+## Tech stack
 
 - ASP.NET Core (Razor Pages) on .NET 10
 - SignalR for live client updates
@@ -24,6 +24,8 @@ A central status page for my homelab, live at [tzer0m.co.uk](https://tzer0m.co.u
 
 Configuration lives in `appsettings.json` (see `appsettingsGit.json` for the shape, values stripped).
 
+Each entry under `Services` needs a `Name` that exactly matches the corresponding monitor's name in Kuma, or its status won't be picked up (a warning is logged once per unmatched service).
+
 ## Deployment
 
-Deployed via GitHub Actions on push to `master`, using a self-hosted runner on Tyrion. The workflow stops the `Dashboard.service` systemd unit, publishes a fresh build to `/home/tzer0m/Services/Dashboard`, and restarts the service.
+Deployed via GitHub Actions on push to `master`, using a self-hosted runner. The workflow stops the `Dashboard.service` systemd unit, publishes a fresh build, and restarts the service.
