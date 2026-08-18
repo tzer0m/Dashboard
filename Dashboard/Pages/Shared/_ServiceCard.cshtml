@@ -11,6 +11,9 @@
     string faviconSrc = Model.FaviconUrl ?? $"/Favicon?url={Uri.EscapeDataString(Model.Service.Url)}";
     bool isGlobal = Model.Service.Access == "Global";
     string badgeTitle = Model.Status?.Error ?? string.Empty;
+    bool showResponseTime = Model.Status != null && Model.Status.IsOnline;
+    string responseTimeClass = showResponseTime ? (Model.Status!.ResponseTimeMs <= 200 ? "response-time-fast" : Model.Status.ResponseTimeMs <= 500 ? "response-time-moderate" : "response-time-slow") : "";
+    string responseTimeText = showResponseTime ? $"{Model.Status!.ResponseTimeMs} ms" : "—";
 }
 
 <div class="card text-decoration-none text-reset d-block position-relative" data-service-name="@Model.Service.Name" style="cursor: pointer;">
@@ -53,7 +56,7 @@
             <div class="d-flex justify-content-between align-items-center mt-2 text-secondary" style="font-size: 0.75rem;">
                 <span>@displayUrl</span>
                 <span>
-                    <span class="response-time @(Model.Status != null ? (Model.Status.ResponseTimeMs <= 200 ? "response-time-fast" : Model.Status.ResponseTimeMs <= 500 ? "response-time-moderate" : "response-time-slow") : "")">@(Model.Status != null ? $"{Model.Status.ResponseTimeMs} ms" : "—")</span>
+                    <span class="response-time @responseTimeClass">@responseTimeText</span>
                     @if (Model.Service.LocalPort != null)
                     {
                         <span class="ms-2">@Model.Service.LocalPort</span>

@@ -68,14 +68,18 @@ function handleStatusUpdate(status) {
     badge.textContent = isOnline ? '✓' : '✕';
     badge.title = isOnline ? '' : (status.error ?? '');
 
-    // Response time, colour-coded the same way the server-rendered version is
+    // Response time, colour-coded the same way the server-rendered version is. Hidden when the service is offline, since a response time from a failed check isn't meaningful.
     const responseTimeEl = card.querySelector('.response-time');
     if (responseTimeEl) {
-        responseTimeEl.textContent = `${status.responseTimeMs} ms`;
         responseTimeEl.classList.remove('response-time-fast', 'response-time-moderate', 'response-time-slow');
-        if (status.responseTimeMs <= 200) responseTimeEl.classList.add('response-time-fast');
-        else if (status.responseTimeMs <= 500) responseTimeEl.classList.add('response-time-moderate');
-        else responseTimeEl.classList.add('response-time-slow');
+        if (isOnline) {
+            responseTimeEl.textContent = `${status.responseTimeMs} ms`;
+            if (status.responseTimeMs <= 200) responseTimeEl.classList.add('response-time-fast');
+            else if (status.responseTimeMs <= 500) responseTimeEl.classList.add('response-time-moderate');
+            else responseTimeEl.classList.add('response-time-slow');
+        } else {
+            responseTimeEl.textContent = '—';
+        }
     }
 
     recomputeStatusSummary();
