@@ -132,10 +132,10 @@ function recomputeStatusSummary() {
     overallCard.classList.remove('bg-success', 'bg-danger');
     if (offline === 0) {
         overallCard.classList.add('bg-success');
-        overallText.textContent = 'All Services Online';
+        overallText.textContent = 'All Online';
     } else {
         overallCard.classList.add('bg-danger');
-        overallText.textContent = `${offline} Service${offline === 1 ? '' : 's'} Offline`;
+        overallText.textContent = `${offline} Offline`;
     }
 }
 
