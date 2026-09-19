@@ -34,14 +34,21 @@ body {
 
 .container {
     width: 100%;
-    max-width: 1480px;
+    max-width: 1776px;
     margin-left: auto;
     margin-right: auto;
 }
 
 .service-col {
-    flex: 0 0 20%;
-    max-width: 20%;
+    flex: 0 0 16.6666667%;
+    max-width: 16.6666667%;
+}
+
+@media (max-width: 1775px) {
+    .service-col {
+        flex: 0 0 20%;
+        max-width: 20%;
+    }
 }
 
 @media (max-width: 1480px) {
