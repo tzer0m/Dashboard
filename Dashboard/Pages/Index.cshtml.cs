@@ -25,9 +25,9 @@ public class IndexModel(StatusStore statusStore, IConfiguration configuration) :
     private readonly IConfiguration Configuration = configuration;
 
     /// <summary>
-    /// Services grouped by device name, populated on GET.
+    /// Hosts and their services, populated on GET.
     /// </summary>
-    public Dictionary<string, List<ServiceEntry>> ServicesByDevice { get; set; } = [];
+    public List<HostEntry> Hosts { get; set; } = [];
 
     /// <summary>
     /// Latest cached status for all services, keyed by service name.
@@ -74,15 +74,14 @@ public class IndexModel(StatusStore statusStore, IConfiguration configuration) :
     /// </summary>
     public void OnGet()
     {
-        // Load the list of services from config, grouped by device.
+        // Load the list of hosts and their services from config.
         Response.Headers.CacheControl = "no-store";
-        List<ServiceEntry> services = Configuration.GetSection("Services").Get<List<ServiceEntry>>() ?? [];
-        ServicesByDevice = services.GroupBy(s => s.LocalIp).ToDictionary(g => g.Key, g => g.ToList());
+        Hosts = Configuration.GetSection("Hosts").Get<List<HostEntry>>() ?? [];
         Statuses = StatusStore.GetAll();
         DiagramUrl = Configuration.GetSection("Diagram")["Url"] ?? string.Empty;
         OnlineCount = Statuses.Values.Count(status => status.IsOnline);
         OfflineCount = Statuses.Values.Count(status => !status.IsOnline);
-        PendingCount = services.Count - Statuses.Count;
+        PendingCount = Hosts.Sum(h => h.Services.Count) - Statuses.Count;
         OverallStatusClass = OfflineCount == 0 ? "bg-success" : "bg-danger";
         OverallStatusText = OfflineCount == 0 ? "All Online" : $"{OfflineCount} Offline";
         LastUpdated = Statuses.Count > 0 ? Statuses.Values.Max(status => status.LastChecked) : null;

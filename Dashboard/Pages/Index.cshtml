@@ -3,8 +3,8 @@
 @using Dashboard.Models
 @{
     ViewData["Title"] = "Dashboard";
-    Dictionary<string, List<ServiceEntry>> singleService = Model.ServicesByDevice.Where(d => d.Value.Count == 1).OrderBy(d => d.Key).ToDictionary(d => d.Key, d => d.Value.OrderBy(s => s.Name).ToList());
-    Dictionary<string, List<ServiceEntry>> multiService = Model.ServicesByDevice.Where(d => d.Value.Count > 1).OrderBy(d => d.Key).ToDictionary(d => d.Key, d => d.Value.OrderBy(s => s.Name).ToList());
+    List<HostEntry> singleService = Model.Hosts.Where(h => h.Services.Count == 1).OrderBy(h => h.Ip).ToList();
+    List<HostEntry> multiService = Model.Hosts.Where(h => h.Services.Count > 1).OrderBy(h => h.Ip).ToList();
 }
 
 <div class="header-grid mb-2">
@@ -42,32 +42,33 @@
 </div>
 
 <div class="row g-3 mb-4 mt-2">
-    @foreach (KeyValuePair<string, List<ServiceEntry>> device in singleService)
+    @foreach (HostEntry host in singleService)
     {
+        ServiceEntry service = host.Services[0];
         <div class="service-col">
             <div class="mb-1">
-                <span class="fw-medium">@device.Value.First().Device</span>
-                <span class="text-secondary ms-2" style="font-size: 1rem;">@device.Value.First().LocalIp</span>
+                <span class="fw-medium">@host.Host</span>
+                <span class="text-secondary ms-2" style="font-size: 1rem;">@host.Ip</span>
             </div>
             @await Html.PartialAsync("_ServiceCard", new ServiceCard
             {
-                Service = device.Value.First(),
-                Status = Model.Statuses.GetValueOrDefault(device.Value.First().Name),
-                FaviconUrl = device.Value.First().FaviconUrl
+                Service = service,
+                Status = Model.Statuses.GetValueOrDefault(service.Name),
+                FaviconUrl = service.FaviconUrl
             })
         </div>
     }
 </div>
 
-@foreach (KeyValuePair<string, List<ServiceEntry>> device in multiService)
+@foreach (HostEntry host in multiService)
 {
     <div class="mb-3 mt-3">
         <div class="mb-1">
-            <span class="fw-medium">@device.Value.First().Device</span>
-            <span class="text-secondary ms-2" style="font-size: 1rem;">@device.Value.First().LocalIp</span>
+            <span class="fw-medium">@host.Host</span>
+            <span class="text-secondary ms-2" style="font-size: 1rem;">@host.Ip</span>
         </div>
         <div class="row g-3">
-            @foreach (ServiceEntry service in device.Value)
+            @foreach (ServiceEntry service in host.Services.OrderBy(s => s.Name))
             {
                 <div class="service-col">
                     @await Html.PartialAsync("_ServiceCard", new ServiceCard

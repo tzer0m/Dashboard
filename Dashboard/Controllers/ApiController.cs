@@ -36,28 +36,31 @@ public sealed class ApiController(KumaStatusService kumaStatusService, GitHubBad
     public async Task<ActionResult<List<ServiceInformation>>> GetStatusAsync(CancellationToken cancellationToken)
     {
         List<ServiceInformation> result = [];
-        foreach (ServiceEntry service in KumaStatusService.ServiceEntries)
+        foreach (HostEntry host in KumaStatusService.HostEntries)
         {
-            // Retrieve the last known status from the status store and the deploy badge data from GitHub
-            ServiceStatus? health = StatusStore.Get(service.Name);
-            GitHubBadgeStatus? deployBadge = string.IsNullOrEmpty(service.RepoName) ? null : await GitHubBadgeService.GetStatusAsync(service.RepoName, "deploy.yml", "master", cancellationToken);
-
-            // Combine the health and deploy badge data into a single object
-            result.Add(new ServiceInformation
+            foreach (ServiceEntry service in host.Services)
             {
-                Name = service.Name,
-                Url = service.Url,
-                Type = service.Type,
-                Access = service.Access,
-                Device = service.Device,
-                LocalIp = service.LocalIp,
-                LocalPort = service.LocalPort,
-                AuthRequired = service.AuthRequired,
-                FaviconUrl = service.FaviconUrl,
-                RepoName = service.RepoName,
-                Health = health,
-                DeployBadge = deployBadge
-            });
+                // Retrieve the last known status from the status store and the deploy badge data from GitHub
+                ServiceStatus? health = StatusStore.Get(service.Name);
+                GitHubBadgeStatus? deployBadge = string.IsNullOrEmpty(service.RepoName) ? null : await GitHubBadgeService.GetStatusAsync(service.RepoName, "deploy.yml", "master", cancellationToken);
+
+                // Combine the health and deploy badge data into a single object
+                result.Add(new ServiceInformation
+                {
+                    Name = service.Name,
+                    Url = service.Url,
+                    Type = service.Type,
+                    Access = service.Access,
+                    Device = host.Host,
+                    LocalIp = host.Ip,
+                    LocalPort = service.Port,
+                    AuthRequired = service.AuthRequired,
+                    FaviconUrl = service.FaviconUrl,
+                    RepoName = service.RepoName,
+                    Health = health,
+                    DeployBadge = deployBadge
+                });
+            }
         }
 
         // Return the combined status information as a JSON response

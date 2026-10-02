@@ -37,14 +37,19 @@ public class KumaStatusService(IHttpClientFactory httpClientFactory, StatusStore
     private readonly IHubContext<ServiceStatusHub> HubContext = hubContext;
 
     /// <summary>
-    /// List of services to monitor, loaded from configuration.
+    /// List of hosts and their services, loaded from configuration.
     /// </summary>
-    private readonly List<ServiceEntry> Services = configuration.GetSection("Services").Get<List<ServiceEntry>>() ?? [];
+    private readonly List<HostEntry> Hosts = configuration.GetSection("Hosts").Get<List<HostEntry>>() ?? [];
 
     /// <summary>
-    /// The configured service entries being monitored.
+    /// The configured hosts and their services.
     /// </summary>
-    public IReadOnlyList<ServiceEntry> ServiceEntries => Services;
+    public IReadOnlyList<HostEntry> HostEntries => Hosts;
+
+    /// <summary>
+    /// All services across every host, flattened.
+    /// </summary>
+    private List<ServiceEntry> Services => [.. Hosts.SelectMany(h => h.Services)];
 
     /// <summary>
     /// Logger used to log information and errors.

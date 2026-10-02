@@ -57,9 +57,9 @@
                 <span>@displayUrl</span>
                 <span>
                     <span class="response-time @responseTimeClass">@responseTimeText</span>
-                    @if (Model.Service.LocalPort != null)
+                    @if (Model.Service.Port != null)
                     {
-                        <span class="ms-2">@Model.Service.LocalPort</span>
+                        <span class="ms-2">@Model.Service.Port</span>
                     }
                 </span>
             </div>

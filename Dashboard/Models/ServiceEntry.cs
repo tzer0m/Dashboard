@@ -26,19 +26,9 @@ public class ServiceEntry
     public string Access { get; set; } = string.Empty;
 
     /// <summary>
-    /// Gets or sets the name of the device hosting this service.
-    /// </summary>
-    public string Device { get; set; } = string.Empty;
-
-    /// <summary>
-    /// Gets or sets the local IP address of the host device.
-    /// </summary>
-    public string LocalIp { get; set; } = string.Empty;
-
-    /// <summary>
     /// Gets or sets the local port the service runs on.
     /// </summary>
-    public int? LocalPort { get; set; }
+    public int? Port { get; set; }
 
     /// <summary>
     /// Gets or sets whether the service requires authentication. A 401 response will be treated as online if true.
