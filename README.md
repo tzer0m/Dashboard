@@ -1,6 +1,6 @@
 # Dashboard
 
-[![Deploy](https://github.com/tzer0m/Dashboard/actions/workflows/deploy.yml/badge.svg)](https://github.com/tzer0m/Dashboard/actions/workflows/deploy.yml)
+[![Deploy](https://github.com/tzer0m/Dashboard/actions/workflows/deploy.yml/badge.svg)](https://github.com/tzer0m/Dashboard/actions/workflows/deploy.yml) [![Dependabot](https://github.com/tzer0m/Dashboard/actions/workflows/dependabot/dependabot-updates/badge.svg)](https://github.com/tzer0m/Dashboard/actions/workflows/dependabot/dependabot-updates)
 
 A central status page for a self-hosted homelab. It shows every service in one place — up/down status, response time, and the latest deploy result — and pushes updates to connected clients in real time.
 
