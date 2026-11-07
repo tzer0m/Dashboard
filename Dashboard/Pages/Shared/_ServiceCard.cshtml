@@ -24,25 +24,7 @@
             <span class="badge @badgeClass ms-auto flex-shrink-0" title="@badgeTitle">@badgeText</span>
         </div>
         <div class="service-sub d-flex justify-content-between align-items-center">
-            <span class="d-inline-flex align-items-center gap-1 text-secondary small min-w-0">
-                <span class="d-inline-flex flex-shrink-0" title="@Model.Service.Access">
-                    @if (isGlobal)
-                    {
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="12" cy="12" r="10"></circle>
-                            <line x1="2" y1="12" x2="22" y2="12"></line>
-                            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
-                        </svg>
-                    }
-                    else
-                    {
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M3 9.5 12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"></path>
-                        </svg>
-                    }
-                </span>
-                <span class="text-truncate">@Model.Service.Type</span>
-            </span>
+            <span class="service-type text-secondary text-truncate min-w-0">@Model.Service.Type</span>
             @if (!string.IsNullOrEmpty(Model.Service.RepoName))
             {
                 string repoUrl = $"https://github.com/{Model.Service.RepoName}";
@@ -52,8 +34,26 @@
                 </span>
             }
         </div>
-        <div class="service-meta d-flex justify-content-between align-items-center text-secondary" title="@(Model.Service.Port != null ? $"{displayUrl} (Port {Model.Service.Port})" : displayUrl)">
-            <span class="text-truncate">@displayUrl</span>
+        <div class="service-meta d-flex align-items-center text-secondary" title="@(Model.Service.Port != null ? $"{displayUrl} (Port {Model.Service.Port})" : displayUrl)">
+            <span class="d-inline-flex align-items-center gap-1 min-w-0 me-auto">
+                <span class="d-inline-flex flex-shrink-0" title="@Model.Service.Access">
+                    @if (isGlobal)
+                    {
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="2" y1="12" x2="22" y2="12"></line>
+                            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                        </svg>
+                    }
+                    else
+                    {
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 9.5 12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"></path>
+                        </svg>
+                    }
+                </span>
+                <span class="text-truncate">@displayUrl</span>
+            </span>
             <span class="response-time @responseTimeClass flex-shrink-0 ms-2">@responseTimeText</span>
         </div>
     </div>

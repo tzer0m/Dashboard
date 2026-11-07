@@ -54,9 +54,9 @@ body:has(#host-flow):not(.scaled) main {
     pointer-events: none;
 }
 
-/* Host box colours, kept fairly light so old monitors with poor dark tones don't crush them to black. */
+/* Host box colours, kept fairly light so old monitors with poor dark tones don't crush them to black. Plain hex rather than color-mix(), which older browsers don't support and would draw as black. */
 .host-outline {
-    fill: color-mix(in srgb, var(--bs-body-bg) 84%, #fff);
+    fill: #44484b;
     stroke: rgba(255, 255, 255, 0.45);
     stroke-width: 1;
 }
@@ -66,6 +66,13 @@ body:has(#host-flow):not(.scaled) main {
     z-index: 1;
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+}
+
+/* Beyond phone size, always use the design screen's 6 columns, so zoomed-up screens show the same layout scaled up rather than squeezing in narrower extra columns. */
+@media (min-width: 768px) {
+    .host-flow {
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+    }
 }
 
 .flow-cell {
@@ -151,6 +158,11 @@ body:has(#host-flow):not(.scaled) main {
 
 .service-meta {
     margin-top: 0.125rem;
+    font-size: 0.6875rem;
+}
+
+/* The type on line 2 matches the web address size on line 3. */
+.service-type {
     font-size: 0.6875rem;
 }
 
@@ -360,7 +372,7 @@ body:has(#host-flow):not(.scaled) main {
     margin-bottom: 0.5rem;
     border: 1px solid rgba(255, 255, 255, 0.32);
     border-radius: 8px;
-    background-color: color-mix(in srgb, var(--bs-body-bg) 93%, #fff);
+    background-color: #2f3337;
 }
 
 .edit-host-summary {
