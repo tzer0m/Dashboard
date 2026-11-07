@@ -326,3 +326,21 @@ body {
         width: 1.15em;
         height: 1.15em;
     }
+
+/* Status dot on the right of each link, coloured from the link's data-state, which newtab.js keeps updated. */
+.newtab-dot {
+    flex-shrink: 0;
+    width: 0.55em;
+    height: 0.55em;
+    margin-left: auto;
+    border-radius: 50%;
+    background-color: var(--bs-secondary);
+}
+
+.newtab-link[data-state="online"] .newtab-dot {
+    background-color: var(--bs-success);
+}
+
+.newtab-link[data-state="offline"] .newtab-dot {
+    background-color: var(--bs-danger);
+}

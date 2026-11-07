@@ -41,6 +41,7 @@
                         <a href="@service.Url" target="_top" class="newtab-link card text-decoration-none text-reset" data-service-name="@service.Name" data-state="@state" title="@service.Url">
                             <img src="@faviconSrc" width="16" height="16" onerror="this.style.visibility='hidden'" />
                             <span class="text-truncate">@service.Name</span>
+                            <span class="newtab-dot" title="@(status?.Error ?? string.Empty)"></span>
                         </a>
                     }
                 </section>

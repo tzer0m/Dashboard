@@ -19,7 +19,10 @@ updateClocks();
  */
 function handleStatusUpdate(status) {
     const link = document.querySelector(`[data-service-name="${status.name}"]`);
-    if (link) link.dataset.state = status.isOnline ? 'online' : 'offline';
+    if (link) {
+        link.dataset.state = status.isOnline ? 'online' : 'offline';
+        link.querySelector('.newtab-dot').title = status.isOnline ? '' : (status.error ?? '');
+    }
     recomputeStatusSummary();
 }
 
