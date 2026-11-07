@@ -213,13 +213,13 @@ document.addEventListener("DOMContentLoaded", refreshRepoBadges);
 setInterval(refreshRepoBadges, 60000);
 
 // How far, in pixels, each host's outline is pulled in from the column grid lines, which is what leaves a gap between neighbouring hosts side by side.
-const OutlineInsetX = 2;
+const OutlineInsetX = 2.5;
 
 // How far, in pixels, the top of each host's outline sits below the row grid line.
-const OutlineInsetTop = 2;
+const OutlineInsetTop = 2.5;
 
 // How far, in pixels, the bottom of each host's outline sits above the row grid line.
-const OutlineInsetBottom = 2;
+const OutlineInsetBottom = 2.5;
 
 // Corner radius, in pixels, for both the outer and inner corners of a host outline.
 const OutlineRadius = 8;
