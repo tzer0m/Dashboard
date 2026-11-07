@@ -414,6 +414,24 @@ function buildHostOutline(host, cells, columns, sides, xs, ys) {
     return pathData;
 }
 
+// The screen size, in pixels, larger screens zoom the whole page up from. The height is a little under the 1024 design screen so big screens zoom slightly further; the width still caps the design screen itself at 100%.
+const DesignWidth = 1280;
+const DesignHeight = 830;
+
+/**
+ * Zooms the page up on screens larger than the design size, by whichever of width or height is tighter, so big screens show the same layout at a readable size. Never zooms below 100%, so the design screen itself is unchanged.
+ */
+function scaleToScreen() {
+    document.body.style.zoom = Math.max(1, Math.min(window.innerWidth / DesignWidth, window.innerHeight / DesignHeight));
+
+    // Reveal the page, which the stylesheet hides until it has been zoomed so it never shows at the wrong size first.
+    document.body.classList.add('scaled');
+}
+
+// The page is already parsed when this script runs, so zoom straight away rather than waiting for DOMContentLoaded.
+scaleToScreen();
+window.addEventListener('resize', scaleToScreen);
+
 document.addEventListener("DOMContentLoaded", () => {
     outlineHostGroups();
     const grid = document.getElementById('host-flow');

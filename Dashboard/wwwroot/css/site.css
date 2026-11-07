@@ -35,6 +35,11 @@ body {
     margin-right: auto;
 }
 
+/* The dashboard stays hidden until dashboard.js has zoomed it to fit the screen, so it doesn't jump from small to big on load. */
+body:has(#host-flow):not(.scaled) main {
+    visibility: hidden;
+}
+
 .host-flow-wrap {
     position: relative;
 }
@@ -49,12 +54,10 @@ body {
     pointer-events: none;
 }
 
+/* Host box colours, kept fairly light so old monitors with poor dark tones don't crush them to black. */
 .host-outline {
-    fill: color-mix(in srgb, var(--bs-body-bg) 93%, #fff);
-}
-
-.host-outline {
-    stroke: rgba(255, 255, 255, 0.32);
+    fill: color-mix(in srgb, var(--bs-body-bg) 84%, #fff);
+    stroke: rgba(255, 255, 255, 0.45);
     stroke-width: 1;
 }
 
