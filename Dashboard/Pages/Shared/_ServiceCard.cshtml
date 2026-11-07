@@ -16,53 +16,45 @@
     string responseTimeText = showResponseTime ? $"{Model.Status!.ResponseTimeMs} ms" : "—";
 }
 
-<div class="card text-decoration-none text-reset d-block position-relative" data-service-name="@Model.Service.Name" style="cursor: pointer;">
-    <a href="@Model.Service.Url" target="_blank" rel="noopener noreferrer" class="card text-decoration-none text-reset d-block" style="cursor: pointer;">
-        <div class="card-body">
-            <div class="d-flex align-items-center gap-2 mb-2">
-                <img src="@faviconSrc" width="16" height="16" onerror="this.style.display='none'" />
-                <h6 class="card-title mb-0">@Model.Service.Name</h6>
-                <span class="d-inline-flex align-items-center gap-2 ms-auto">
-                    <span class="text-secondary d-inline-flex" title="@Model.Service.Access" style="flex-shrink: 0;">
-                        @if (isGlobal)
-                        {
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <circle cx="12" cy="12" r="10"></circle>
-                                <line x1="2" y1="12" x2="22" y2="12"></line>
-                                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
-                            </svg>
-                        }
-                        else
-                        {
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M3 9.5 12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"></path>
-                            </svg>
-                        }
-                    </span>
-                    <span class="badge @badgeClass" title="@badgeTitle">@badgeText</span>
-                </span>
-            </div>
-            <div class="d-flex justify-content-between align-items-center mb-1">
-                <p class="text-secondary small mb-0">@Model.Service.Type</p>
-                @if (!string.IsNullOrEmpty(Model.Service.RepoName))
-                {
-                    long bucket = DateTimeOffset.UtcNow.ToUnixTimeSeconds() / 60;
-                    string innerUrl = $"https://tzer0m.co.uk/Badge?repo={Model.Service.RepoName}&_t={bucket}";
-                    string badgeUrl = $"https://img.shields.io/endpoint?url={Uri.EscapeDataString(innerUrl)}&style=flat-square&labelColor=212529&logo=github&logoColor=8b949e";
-                    string repoUrl = $"https://github.com/{Model.Service.RepoName}";
-                    <img src="@badgeUrl" alt="Deploy status" style="cursor: pointer;" onclick="event.stopPropagation(); event.preventDefault(); window.open('@repoUrl', '_blank', 'noopener,noreferrer');" />
-                }
-            </div>
-            <div class="d-flex justify-content-between align-items-center mt-2 text-secondary" style="font-size: 0.75rem;">
-                <span>@displayUrl</span>
-                <span>
-                    <span class="response-time @responseTimeClass">@responseTimeText</span>
-                    @if (Model.Service.Port != null)
+<a href="@Model.Service.Url" target="_blank" rel="noopener noreferrer" class="service-card card text-decoration-none text-reset d-block h-100" data-service-name="@Model.Service.Name">
+    <div class="card-body service-body">
+        <div class="d-flex align-items-center gap-1">
+            <img src="@faviconSrc" width="16" height="16" onerror="this.style.display='none'" />
+            <h6 class="card-title mb-0 text-truncate" title="@Model.Service.Name">@Model.Service.Name</h6>
+            <span class="badge @badgeClass ms-auto flex-shrink-0" title="@badgeTitle">@badgeText</span>
+        </div>
+        <div class="service-sub d-flex justify-content-between align-items-center">
+            <span class="d-inline-flex align-items-center gap-1 text-secondary small min-w-0">
+                <span class="d-inline-flex flex-shrink-0" title="@Model.Service.Access">
+                    @if (isGlobal)
                     {
-                        <span class="ms-2">@Model.Service.Port</span>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="2" y1="12" x2="22" y2="12"></line>
+                            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                        </svg>
+                    }
+                    else
+                    {
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 9.5 12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"></path>
+                        </svg>
                     }
                 </span>
-            </div>
+                <span class="text-truncate">@Model.Service.Type</span>
+            </span>
+            @if (!string.IsNullOrEmpty(Model.Service.RepoName))
+            {
+                string repoUrl = $"https://github.com/{Model.Service.RepoName}";
+                <span class="repo-badge flex-shrink-0 ms-2" data-repo="@Model.Service.RepoName" title="Deploy Status" onclick="event.stopPropagation(); event.preventDefault(); window.open('@repoUrl', '_blank', 'noopener,noreferrer');">
+                    <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path></svg>
+                    <span class="repo-badge-text">–</span>
+                </span>
+            }
         </div>
-    </a>
-</div>
+        <div class="service-meta d-flex justify-content-between align-items-center text-secondary" title="@(Model.Service.Port != null ? $"{displayUrl} (Port {Model.Service.Port})" : displayUrl)">
+            <span class="text-truncate">@displayUrl</span>
+            <span class="response-time @responseTimeClass flex-shrink-0 ms-2">@responseTimeText</span>
+        </div>
+    </div>
+</a>

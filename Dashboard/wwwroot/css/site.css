@@ -19,50 +19,150 @@ html {
     min-height: 100%;
 }
 
-body {
-    margin-bottom: 60px;
-}
-
 .card:hover {
     border-color: rgba(255, 255, 255, 0.25);
     background-color: rgba(255, 255, 255, 0.05);
 }
 
 body {
-    font-size: 1.5rem;
+    font-size: 1rem;
 }
 
 .container {
     width: 100%;
-    max-width: 1776px;
+    max-width: 2200px;
     margin-left: auto;
     margin-right: auto;
 }
 
-.service-col {
-    flex: 0 0 16.6666667%;
-    max-width: 16.6666667%;
+.host-flow-wrap {
+    position: relative;
 }
 
-@media (max-width: 1775px) {
-    .service-col {
-        flex: 0 0 20%;
-        max-width: 20%;
-    }
+.host-outlines {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    pointer-events: none;
 }
 
-@media (max-width: 1480px) {
-    .service-col {
-        flex: 0 0 50%;
-        max-width: 50%;
-    }
+.host-outline {
+    fill: color-mix(in srgb, var(--bs-body-bg) 93%, #fff);
 }
 
-@media (max-width: 651px) {
-    .service-col {
-        flex: 0 0 100%;
-        max-width: 100%;
-    }
+.host-outline {
+    stroke: rgba(255, 255, 255, 0.32);
+    stroke-width: 1;
+}
+
+.host-flow {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+}
+
+.flow-cell {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    padding: 6px;
+}
+
+.flow-cell > .service-card {
+    flex: 1 1 auto;
+    height: auto !important;
+}
+
+.host-head {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.2rem;
+    min-width: 0;
+    margin: 6px 0 6px 6px;
+    padding: 0 0.75rem;
+    border-left: 3px solid rgba(255, 255, 255, 0.32);
+    border-radius: 2px;
+    white-space: nowrap;
+}
+
+.host-pills {
+    display: flex;
+    gap: 0.3rem;
+    margin-top: 0.15rem;
+}
+
+.host-pill {
+    padding: 0.05rem 0.45rem;
+    border-radius: 0.375rem;
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 500;
+    line-height: 1.3;
+}
+
+.host-name {
+    font-size: 1.125rem;
+    font-weight: 600;
+    line-height: 1.1;
+}
+
+.host-ip {
+    color: var(--bs-secondary-color);
+    font-size: 0.8125rem;
+}
+
+.service-card,
+.repo-badge {
+    cursor: pointer;
+}
+
+.min-w-0 {
+    min-width: 0;
+}
+
+.repo-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    height: 18px;
+    padding: 0 0.4rem;
+    border-radius: 3px;
+    font-size: 0.75rem;
+    line-height: 1;
+    color: #fff;
+    background-color: #6c757d;
+    white-space: nowrap;
+}
+
+.service-sub {
+    min-height: 20px;
+    margin-top: 0.125rem;
+}
+
+.service-meta {
+    margin-top: 0.125rem;
+    font-size: 0.6875rem;
+}
+
+.service-body {
+    padding: 0.375rem 0.5rem;
+}
+
+.service-card .card-title {
+    font-size: 0.9375rem;
+    margin-left: 0.25rem;
+}
+
+.service-card .badge {
+    padding: 0.2em 0.45em;
+    font-size: 0.75rem;
 }
 
 .refresh-btn {
@@ -113,38 +213,40 @@ body {
     color: #dc3545;
 }
 
-.header-grid {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    grid-template-areas: "status diagram" "updated clocks";
+.dash-bar {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    display: flex;
+    flex-wrap: wrap;
     align-items: center;
     gap: 0.5rem 1rem;
+    margin: -1rem -0.75rem 0.75rem;
+    padding: 0.5rem 0.75rem;
+    background-color: var(--bs-body-bg);
+    border-bottom: 1px solid var(--bs-border-color);
 }
 
-.header-status {
-    grid-area: status;
-    min-width: 0;
+.dash-bar-status,
+.dash-bar-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
 }
 
-.header-updated {
-    grid-area: updated;
-    min-width: 0;
+.dash-bar-meta {
+    flex: 1 1 auto;
+    gap: 0.75rem;
 }
 
-.header-clocks {
-    grid-area: clocks;
-    justify-self: end;
+.dash-bar-divider {
+    width: 1px;
+    height: 1rem;
+    background-color: var(--bs-border-color);
 }
 
-.header-diagram {
-    grid-area: diagram;
-    justify-self: end;
+.dash-bar-link {
+    margin-left: auto;
+    cursor: pointer;
 }
-
-@media (min-width: 992px) {
-    .header-grid {
-        grid-template-columns: auto auto 1fr auto auto;
-        grid-template-areas: "status updated . clocks diagram";
-    }
-}
-

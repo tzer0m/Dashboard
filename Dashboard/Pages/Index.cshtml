@@ -3,12 +3,11 @@
 @using Dashboard.Models
 @{
     ViewData["Title"] = "Dashboard";
-    List<HostEntry> singleService = Model.Hosts.Where(h => h.Services.Count == 1).OrderBy(h => h.Ip).ToList();
-    List<HostEntry> multiService = Model.Hosts.Where(h => h.Services.Count > 1).OrderBy(h => h.Ip).ToList();
+    List<HostEntry> orderedHosts = Model.Hosts.OrderBy(h => h.Host).ToList();
 }
 
-<div class="header-grid mb-2">
-    <div class="header-status d-flex flex-wrap align-items-center gap-2">
+<header class="dash-bar">
+    <div class="dash-bar-status">
         <div id="overall-status-card" class="card @Model.OverallStatusClass text-white px-2 flex-shrink-0">
             <span id="overall-status-text" class="fw-medium small text-nowrap">@Model.OverallStatusText</span>
         </div>
@@ -22,66 +21,57 @@
             <span id="pending-count" class="fw-medium small text-nowrap">@Model.PendingCount</span>
         </div>
     </div>
-    <div class="header-updated d-flex flex-wrap align-items-center gap-2">
+    <div class="dash-bar-meta">
         <span id="last-updated" class="text-secondary small text-nowrap">@(Model.LastUpdated != null ? $"{Model.LastUpdated.Value:HH:mm:ss} UTC" : "—")</span>
-        <button type="button" id="global-refresh-btn" class="refresh-btn flex-shrink-0" title="Refresh all" onclick="refreshAll();">
+        <button type="button" id="global-refresh-btn" class="refresh-btn flex-shrink-0" title="Refresh All" onclick="refreshAll();">
             <svg class="refresh-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="23 4 23 10 17 10"></polyline>
                 <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
             </svg>
         </button>
-    </div>
-    <div class="header-clocks d-flex flex-wrap align-items-center gap-3">
+        <span class="dash-bar-divider"></span>
         <span id="utc-clock" class="text-secondary small text-nowrap"></span>
         <span id="local-clock" class="text-secondary small text-nowrap"></span>
     </div>
-    <a href="@Model.DiagramUrl" target="_blank" rel="noopener noreferrer" class="header-diagram card text-decoration-none text-reset d-inline-flex flex-row flex-shrink-0 align-items-center gap-2 px-2 py-1" style="cursor: pointer;">
+    <a href="@Model.DiagramUrl" target="_blank" rel="noopener noreferrer" class="dash-bar-link card text-decoration-none text-reset d-inline-flex flex-row flex-shrink-0 align-items-center gap-2 px-2 py-1">
         <img src="/Favicon?url=https://app.diagrams.net/" width="16" height="16" onerror="this.style.display='none'" />
         <span class="small fw-medium text-nowrap">Network Diagram</span>
     </a>
-</div>
+</header>
 
-<div class="row g-3 mb-4 mt-2">
-    @foreach (HostEntry host in singleService)
+<div class="host-flow-wrap">
+<svg id="host-outlines" class="host-outlines" aria-hidden="true"></svg>
+<div id="host-flow" class="host-flow">
+    @foreach (HostEntry host in orderedHosts)
     {
-        ServiceEntry service = host.Services[0];
-        <div class="service-col">
-            <div class="mb-1">
-                <span class="fw-medium">@host.Host</span>
-                <span class="text-secondary ms-2" style="font-size: 1rem;">@host.Ip</span>
+        int hostOnline = host.Services.Count(s => Model.Statuses.GetValueOrDefault(s.Name)?.IsOnline == true);
+        int hostOffline = host.Services.Count(s => Model.Statuses.GetValueOrDefault(s.Name)?.IsOnline == false);
+        int hostPending = host.Services.Count - hostOnline - hostOffline;
+        <div class="flow-cell" data-host="@host.Host">
+            <div class="host-head">
+                <span class="host-name">@host.Host</span>
+                <span class="host-ip">@host.Ip</span>
+                <div class="host-pills">
+                    <span class="host-pill bg-success" data-pill="online" style="@(hostOnline > 0 ? "" : "display: none;")">@hostOnline</span>
+                    <span class="host-pill bg-danger" data-pill="offline" style="@(hostOffline > 0 ? "" : "display: none;")">@hostOffline</span>
+                    <span class="host-pill bg-secondary" data-pill="pending" style="@(hostPending > 0 ? "" : "display: none;")">@hostPending</span>
+                </div>
             </div>
-            @await Html.PartialAsync("_ServiceCard", new ServiceCard
-            {
-                Service = service,
-                Status = Model.Statuses.GetValueOrDefault(service.Name),
-                FaviconUrl = service.FaviconUrl
-            })
         </div>
+        @foreach (ServiceEntry service in host.Services.OrderBy(s => s.Name))
+        {
+            <div class="flow-cell" data-host="@host.Host">
+                @await Html.PartialAsync("_ServiceCard", new ServiceCard
+                {
+                    Service = service,
+                    Status = Model.Statuses.GetValueOrDefault(service.Name),
+                    FaviconUrl = service.FaviconUrl
+                })
+            </div>
+        }
     }
 </div>
-
-@foreach (HostEntry host in multiService)
-{
-    <div class="mb-3 mt-3">
-        <div class="mb-1">
-            <span class="fw-medium">@host.Host</span>
-            <span class="text-secondary ms-2" style="font-size: 1rem;">@host.Ip</span>
-        </div>
-        <div class="row g-3">
-            @foreach (ServiceEntry service in host.Services.OrderBy(s => s.Name))
-            {
-                <div class="service-col">
-                    @await Html.PartialAsync("_ServiceCard", new ServiceCard
-                    {
-                        Service = service,
-                        Status = Model.Statuses.GetValueOrDefault(service.Name),
-                        FaviconUrl = service.FaviconUrl
-                    })
-                </div>
-            }
-        </div>
-    </div>
-}
+</div>
 
 @section Scripts {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
