@@ -41,11 +41,6 @@ public sealed class ServiceInformation
     public required int? LocalPort { get; init; }
 
     /// <summary>
-    /// Whether the service requires authentication. A 401 response is treated as online if true.
-    /// </summary>
-    public required bool AuthRequired { get; init; }
-
-    /// <summary>
     /// An optional override URL for the service favicon. If set, used instead of auto-detection.
     /// </summary>
     public required string? FaviconUrl { get; init; }

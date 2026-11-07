@@ -31,11 +31,6 @@ public class ServiceEntry
     public int? Port { get; set; }
 
     /// <summary>
-    /// Gets or sets whether the service requires authentication. A 401 response will be treated as online if true.
-    /// </summary>
-    public bool AuthRequired { get; set; } = false;
-
-    /// <summary>
     /// Gets or sets an optional override URL for the service favicon. If set, this is used instead of auto-detection.
     /// </summary>
     public string? FaviconUrl { get; set; }

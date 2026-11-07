@@ -54,7 +54,6 @@ public sealed class ApiController(HostStore hostStore, GitHubBadgeService gitHub
                     Device = host.Host,
                     LocalIp = host.Ip,
                     LocalPort = service.Port,
-                    AuthRequired = service.AuthRequired,
                     FaviconUrl = service.FaviconUrl,
                     RepoName = service.RepoName,
                     Health = health,
