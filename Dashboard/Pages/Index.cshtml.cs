@@ -7,13 +7,9 @@ namespace Dashboard.Pages;
 /// <summary>
 /// Page model for the main dashboard, grouped by device.
 /// </summary>
-/// <remarks>
-/// Initialises a new instance of <see cref="IndexModel"/>.
-/// </remarks>
 /// <param name="statusStore">The singleton status store.</param>
 /// <param name="hostStore">The store holding the hosts and their services.</param>
-/// <param name="configuration">The app configuration.</param>
-public class IndexModel(StatusStore statusStore, HostStore hostStore, IConfiguration configuration) : PageModel
+public class IndexModel(StatusStore statusStore, HostStore hostStore) : PageModel
 {
     /// <summary>
     /// Stores the current status of all services, grouped by device.
@@ -26,11 +22,6 @@ public class IndexModel(StatusStore statusStore, HostStore hostStore, IConfigura
     private readonly HostStore HostStore = hostStore;
 
     /// <summary>
-    /// Contains the configuration for the dashboard, including the network diagram URL.
-    /// </summary>
-    private readonly IConfiguration Configuration = configuration;
-
-    /// <summary>
     /// Hosts and their services, populated on GET.
     /// </summary>
     public List<HostEntry> Hosts { get; set; } = [];
@@ -39,11 +30,6 @@ public class IndexModel(StatusStore statusStore, HostStore hostStore, IConfigura
     /// Latest cached status for all services, keyed by service name.
     /// </summary>
     public IReadOnlyDictionary<string, ServiceStatus> Statuses { get; set; } = new Dictionary<string, ServiceStatus>();
-
-    /// <summary>
-    /// The live diagrams.net viewer URL for the rack cabling diagram, read from config.
-    /// </summary>
-    public string DiagramUrl { get; set; } = string.Empty;
 
     /// <summary>
     /// Count of services currently reporting online.
@@ -83,7 +69,6 @@ public class IndexModel(StatusStore statusStore, HostStore hostStore, IConfigura
         Response.Headers.CacheControl = "no-store";
         Hosts = HostStore.GetAll();
         Statuses = StatusStore.GetAll();
-        DiagramUrl = Configuration.GetSection("Diagram")["Url"] ?? string.Empty;
         OnlineCount = Statuses.Values.Count(status => status.IsOnline);
         OfflineCount = Statuses.Values.Count(status => !status.IsOnline);
         PendingCount = Hosts.Sum(h => h.Services.Count) - Statuses.Count;

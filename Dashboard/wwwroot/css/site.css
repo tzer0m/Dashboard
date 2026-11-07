@@ -266,6 +266,21 @@ body:has(#host-flow):not(.scaled) main {
     cursor: pointer;
 }
 
+/* On phones, slim the bar to one line: drop the last-updated time and UTC clock, and show the links as icons only. */
+@media (max-width: 767.98px) {
+    .dash-bar #last-updated,
+    .dash-bar #utc-clock,
+    .dash-bar .dash-bar-divider,
+    .dash-bar .dash-bar-label {
+        display: none;
+    }
+
+    .dash-bar .card {
+        min-height: 28px;
+        justify-content: center;
+    }
+}
+
 .newtab-grid {
     display: flex;
     justify-content: center;
