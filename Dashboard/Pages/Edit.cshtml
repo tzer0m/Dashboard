@@ -17,7 +17,8 @@
         }
         <div class="dash-bar-meta justify-content-end">
             <a href="/" class="btn btn-sm btn-outline-secondary">Back to Dashboard</a>
-            <button type="submit" class="btn btn-sm btn-primary">Save</button>
+            <button type="submit" class="btn btn-sm btn-success">Save</button>
+            <button type="submit" form="sign-out-form" class="btn btn-sm btn-outline-secondary">Sign Out</button>
         </div>
     </header>
 
@@ -48,6 +49,9 @@
     <template id="host-template">@await Html.PartialAsync("_EditHost", (new HostEntry(), string.Empty, true))</template>
     <template id="service-template">@await Html.PartialAsync("_EditService", (new ServiceEntry(), string.Empty))</template>
 </form>
+
+@* Kept outside the editor form so signing out doesn't post the services or skip the unsaved-changes warning. *@
+<form method="post" id="sign-out-form" asp-page-handler="SignOut"></form>
 
 @section Scripts {
     <script src="~/js/edit.js" asp-append-version="true"></script>

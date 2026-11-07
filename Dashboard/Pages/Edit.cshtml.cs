@@ -1,5 +1,7 @@
 ﻿using Dashboard.Models;
 using Dashboard.Services;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -95,6 +97,15 @@ public class EditModel(HostStore hostStore, StatusStore statusStore, KumaStatusS
         StatusStore.RemoveExcept(Hosts.SelectMany(h => h.Services).SelectMany(s => s.MonitorNames));
         await KumaStatusService.RefreshAllAsync(cancellationToken);
         return RedirectToPage(new { saved = true });
+    }
+
+    /// <summary>
+    /// Signs out of the editor, then returns to the dashboard.
+    /// </summary>
+    public async Task<IActionResult> OnPostSignOutAsync()
+    {
+        await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+        return Redirect("/");
     }
 
     /// <summary>
