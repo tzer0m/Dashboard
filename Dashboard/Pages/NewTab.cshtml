@@ -1,0 +1,55 @@
+﻿@page "/newtab"
+@model NewTabModel
+@using Dashboard.Models
+@{
+    ViewData["Title"] = "New Tab";
+}
+
+<div class="newtab-grid">
+    <div class="newtab-block">
+        <header class="newtab-bar">
+            <div class="dash-bar-status">
+                <div id="overall-status-card" class="card @Model.OverallStatusClass text-white flex-shrink-0">
+                    <span id="overall-status-text" class="fw-medium small text-nowrap">@Model.OverallStatusText</span>
+                </div>
+                <div id="online-count-card" class="card bg-success text-white flex-shrink-0" style="@(Model.OnlineCount > 0 ? "" : "display: none;")">
+                    <span id="online-count" class="fw-medium small text-nowrap">@Model.OnlineCount</span>
+                </div>
+                <div id="offline-count-card" class="card bg-danger text-white flex-shrink-0" style="@(Model.OfflineCount > 0 ? "" : "display: none;")">
+                    <span id="offline-count" class="fw-medium small text-nowrap">@Model.OfflineCount</span>
+                </div>
+                <div id="pending-count-card" class="card bg-secondary text-white flex-shrink-0" style="@(Model.PendingCount > 0 ? "" : "display: none;")">
+                    <span id="pending-count" class="fw-medium small text-nowrap">@Model.PendingCount</span>
+                </div>
+            </div>
+            <div class="dash-bar-meta justify-content-end">
+                <span id="utc-clock" class="text-secondary small text-nowrap"></span>
+                <span class="dash-bar-divider"></span>
+                <span id="local-clock" class="text-secondary small text-nowrap"></span>
+            </div>
+        </header>
+        <div class="newtab-columns">
+            @foreach (KeyValuePair<string, List<ServiceEntry>> group in Model.Groups)
+            {
+                <section class="newtab-group">
+                    <div class="newtab-group-name">@group.Key</div>
+                    @foreach (ServiceEntry service in group.Value)
+                    {
+                        ServiceStatus? status = Model.Statuses.GetValueOrDefault(service.Name);
+                        string state = status == null ? "pending" : status.IsOnline ? "online" : "offline";
+                        string faviconSrc = service.FaviconUrl ?? $"/Favicon?url={Uri.EscapeDataString(service.Url)}";
+                        <a href="@service.Url" target="_top" class="newtab-link card text-decoration-none text-reset" data-service-name="@service.Name" data-state="@state" title="@service.Url">
+                            <img src="@faviconSrc" width="16" height="16" onerror="this.style.visibility='hidden'" />
+                            <span class="text-truncate">@service.Name</span>
+                        </a>
+                    }
+                </section>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
+    <script src="~/js/newtab.js" asp-append-version="true"></script>
+}

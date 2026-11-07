@@ -3,7 +3,7 @@
 @using Dashboard.Models
 @{
     ViewData["Title"] = "Dashboard";
-    List<HostEntry> orderedHosts = Model.Hosts.OrderBy(h => h.Host).ToList();
+    List<HostEntry> orderedHosts = [.. Model.Hosts.OrderBy(h => h.Host)];
 }
 
 <header class="dash-bar">

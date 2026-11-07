@@ -250,3 +250,79 @@ body {
     margin-left: auto;
     cursor: pointer;
 }
+
+.newtab-grid {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: calc(100vh - 2rem);
+}
+
+/* Everything inside the new-tab block is sized in em, so this one scale sets the size of the whole page. */
+.newtab-block {
+    --newtab-scale: 1.5;
+    width: calc(3 * 13.75em + 2 * 1.5em);
+    font-size: calc(1rem * var(--newtab-scale));
+}
+
+.newtab-bar {
+    display: flex;
+    align-items: center;
+    gap: 1em;
+    margin-bottom: 1em;
+    padding-bottom: 0.75em;
+    border-bottom: 1px solid var(--bs-border-color);
+}
+
+    .newtab-bar .dash-bar-status {
+        gap: 0.5em;
+    }
+
+    .newtab-bar .dash-bar-meta {
+        gap: 0.75em;
+    }
+
+    .newtab-bar .card {
+        padding: 0 0.5em;
+    }
+
+    .newtab-bar .dash-bar-divider {
+        height: 1em;
+    }
+
+.newtab-columns {
+    columns: 3;
+    column-gap: 1.5em;
+}
+
+.newtab-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25em;
+    padding-bottom: 1em;
+    break-inside: avoid;
+}
+
+.newtab-group-name {
+    margin-bottom: 0.125em;
+    padding-left: 0.5em;
+    border-left: 3px solid rgba(255, 255, 255, 0.32);
+    font-size: 0.875em;
+    font-weight: 600;
+}
+
+.newtab-link {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5em;
+    min-width: 0;
+    padding: 0.3em 0.5em;
+    font-size: 0.875em;
+}
+
+    .newtab-link img {
+        flex-shrink: 0;
+        width: 1.15em;
+        height: 1.15em;
+    }
