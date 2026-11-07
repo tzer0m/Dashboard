@@ -1,4 +1,6 @@
-﻿namespace Dashboard.Models;
+﻿using System.Text.Json.Serialization;
+
+namespace Dashboard.Models;
 
 /// <summary>
 /// Represents a single service entry with its static configuration.
@@ -39,4 +41,15 @@ public class ServiceEntry
     /// Name of repo for action badge
     /// </summary>
     public string? RepoName { get; set; }
+
+    /// <summary>
+    /// Gets or sets the names of extra Kuma monitors shown as further parts of this service, such as a game server alongside its web panel.
+    /// </summary>
+    public List<string>? ExtraMonitors { get; set; }
+
+    /// <summary>
+    /// Gets every Kuma monitor name for this service: its own name first, then any extra monitors.
+    /// </summary>
+    [JsonIgnore]
+    public List<string> MonitorNames => [Name, .. ExtraMonitors ?? []];
 }

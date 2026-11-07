@@ -35,13 +35,20 @@
                     <div class="newtab-group-name">@group.Key</div>
                     @foreach (ServiceEntry service in group.Value)
                     {
-                        ServiceStatus? status = Model.Statuses.GetValueOrDefault(service.Name);
-                        string state = status == null ? "pending" : status.IsOnline ? "online" : "offline";
                         string faviconSrc = service.FaviconUrl ?? $"/Favicon?url={Uri.EscapeDataString(service.Url)}";
-                        <a href="@service.Url" target="_top" class="newtab-link card text-decoration-none text-reset" data-service-name="@service.Name" data-state="@state" title="@service.Url">
+                        bool hasExtras = service.MonitorNames.Count > 1;
+                        <a href="@service.Url" target="_top" class="newtab-link card text-decoration-none text-reset" data-service-name="@service.Name" title="@service.Url">
                             <img src="@faviconSrc" width="16" height="16" onerror="this.style.visibility='hidden'" />
                             <span class="text-truncate">@service.Name</span>
-                            <span class="newtab-dot" title="@(status?.Error ?? string.Empty)"></span>
+                            <span class="newtab-dots">
+                                @foreach (string monitor in service.MonitorNames)
+                                {
+                                    ServiceStatus? status = Model.Statuses.GetValueOrDefault(monitor);
+                                    string state = status == null ? "pending" : status.IsOnline ? "online" : "offline";
+                                    string dotTitle = hasExtras ? (status?.Error != null ? $"{monitor}: {status.Error}" : monitor) : status?.Error ?? string.Empty;
+                                    <span class="newtab-dot" data-monitor="@monitor" data-state="@state" title="@dotTitle"></span>
+                                }
+                            </span>
                         </a>
                     }
                 </section>

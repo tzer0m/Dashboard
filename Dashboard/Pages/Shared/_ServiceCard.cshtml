@@ -1,19 +1,16 @@
 ﻿@model Dashboard.Models.ServiceCard
+@using Dashboard.Models
 @{
-    string badgeClass = Model.Status == null ? "bg-secondary" : Model.Status.IsOnline ? "bg-success" : "bg-danger";
-    string badgeText = Model.Status switch
-    {
-        null => "–",
-        { IsOnline: true } => "✓",
-        _ => "✕"
-    };
+    List<string> monitors = Model.Service.MonitorNames;
+    bool hasExtras = monitors.Count > 1;
     string displayUrl = Model.Service.Url.Replace("https://", "").Replace("http://", "");
     string faviconSrc = Model.FaviconUrl ?? $"/Favicon?url={Uri.EscapeDataString(Model.Service.Url)}";
     bool isGlobal = Model.Service.Access == "Global";
-    string badgeTitle = Model.Status?.Error ?? string.Empty;
-    bool showResponseTime = Model.Status != null && Model.Status.IsOnline;
-    string responseTimeClass = showResponseTime ? (Model.Status!.ResponseTimeMs <= 200 ? "response-time-fast" : Model.Status.ResponseTimeMs <= 500 ? "response-time-moderate" : "response-time-slow") : "";
-    string responseTimeText = showResponseTime ? $"{Model.Status!.ResponseTimeMs} ms" : "—";
+    string BadgeClass(ServiceStatus? status) => status == null ? "bg-secondary" : status.IsOnline ? "bg-success" : "bg-danger";
+    string BadgeText(ServiceStatus? status) => status == null ? "–" : status.IsOnline ? "✓" : "✕";
+    string BadgeTitle(string monitor, ServiceStatus? status) => hasExtras ? (status?.Error != null ? $"{monitor}: {status.Error}" : monitor) : status?.Error ?? string.Empty;
+    string TimeClass(ServiceStatus? status) => status == null || !status.IsOnline ? string.Empty : status.ResponseTimeMs <= 200 ? "response-time-fast" : status.ResponseTimeMs <= 500 ? "response-time-moderate" : "response-time-slow";
+    string TimeText(ServiceStatus? status) => status != null && status.IsOnline ? $"{status.ResponseTimeMs} ms" : "—";
 }
 
 <a href="@Model.Service.Url" target="_blank" rel="noopener noreferrer" class="service-card card text-decoration-none text-reset d-block h-100" data-service-name="@Model.Service.Name">
@@ -21,7 +18,13 @@
         <div class="d-flex align-items-center gap-1">
             <img src="@faviconSrc" width="16" height="16" onerror="this.style.display='none'" />
             <h6 class="card-title mb-0 text-truncate" title="@Model.Service.Name">@Model.Service.Name</h6>
-            <span class="badge @badgeClass ms-auto flex-shrink-0" title="@badgeTitle">@badgeText</span>
+            <span class="service-badges ms-auto">
+                @foreach (string monitor in monitors)
+                {
+                    ServiceStatus? status = Model.Statuses.GetValueOrDefault(monitor);
+                    <span class="badge @BadgeClass(status)" data-monitor="@monitor" title="@BadgeTitle(monitor, status)">@BadgeText(status)</span>
+                }
+            </span>
         </div>
         <div class="service-sub d-flex justify-content-between align-items-center">
             <span class="service-type text-secondary text-truncate min-w-0">@Model.Service.Type</span>
@@ -54,7 +57,13 @@
                 </span>
                 <span class="text-truncate">@displayUrl</span>
             </span>
-            <span class="response-time @responseTimeClass flex-shrink-0 ms-2">@responseTimeText</span>
+            <span class="service-times ms-2">
+                @foreach (string monitor in monitors)
+                {
+                    ServiceStatus? status = Model.Statuses.GetValueOrDefault(monitor);
+                    <span class="response-time @TimeClass(status)" data-monitor-time="@monitor" title="@(hasExtras ? monitor : null)">@TimeText(status)</span>
+                }
+            </span>
         </div>
     </div>
 </a>

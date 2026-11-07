@@ -175,6 +175,18 @@ body:has(#host-flow):not(.scaled) main {
     margin-left: 0.25rem;
 }
 
+/* One badge and one response time per monitor, main monitor first, extras to its right. */
+.service-badges,
+.service-times {
+    display: inline-flex;
+    flex-shrink: 0;
+    gap: 0.25rem;
+}
+
+.service-times {
+    gap: 0.5rem;
+}
+
 .service-card .badge {
     padding: 0.2em 0.45em;
     font-size: 0.75rem;
@@ -357,23 +369,28 @@ body:has(#host-flow):not(.scaled) main {
         height: 1.15em;
     }
 
-/* Status dot on the right of each link, coloured from the link's data-state, which newtab.js keeps updated. */
-.newtab-dot {
+/* Status dots on the right of each link, one per monitor with the main one first, coloured from each dot's data-state, which newtab.js keeps updated. */
+.newtab-dots {
+    display: inline-flex;
     flex-shrink: 0;
+    gap: 0.45em;
+    margin-left: auto;
+}
+
+.newtab-dot {
     width: 0.55em;
     height: 0.55em;
-    margin-left: auto;
     border-radius: 50%;
     background-color: var(--bs-secondary);
 }
 
-.newtab-link[data-state="online"] .newtab-dot {
-    background-color: var(--bs-success);
-}
+    .newtab-dot[data-state="online"] {
+        background-color: var(--bs-success);
+    }
 
-.newtab-link[data-state="offline"] .newtab-dot {
-    background-color: var(--bs-danger);
-}
+    .newtab-dot[data-state="offline"] {
+        background-color: var(--bs-danger);
+    }
 
 .edit-title {
     font-weight: 600;
@@ -433,7 +450,7 @@ body:has(#host-flow):not(.scaled) main {
 .edit-service,
 .edit-service-head {
     display: grid;
-    grid-template-columns: 1.2fr 2fr 1fr 0.8fr 0.6fr 1.2fr 1.6fr 2rem;
+    grid-template-columns: 1.2fr 1.8fr 1fr 0.8fr 0.6fr 1.2fr 1.4fr 1.2fr 2rem;
     align-items: center;
     gap: 0.375rem;
     margin-bottom: 0.25rem;

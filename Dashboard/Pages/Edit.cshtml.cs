@@ -74,13 +74,17 @@ public class EditModel(HostStore hostStore, StatusStore statusStore, KumaStatusS
                 service.Type = service.Type?.Trim() ?? string.Empty;
                 service.RepoName = string.IsNullOrWhiteSpace(service.RepoName) ? null : service.RepoName.Trim();
                 service.FaviconUrl = string.IsNullOrWhiteSpace(service.FaviconUrl) ? null : service.FaviconUrl.Trim();
+
+                // Extra monitors come in as one comma-separated field, so split them into the list, leaving it empty rather than blank.
+                List<string> extras = [.. (service.ExtraMonitors ?? []).SelectMany(m => (m ?? string.Empty).Split(',')).Select(m => m.Trim()).Where(m => m.Length > 0)];
+                service.ExtraMonitors = extras.Count > 0 ? extras : null;
             }
         }
 
         // Required fields are flagged by model binding; add one summary line for them, plus the checks binding can't do.
         if (!ModelState.IsValid) ModelState.AddModelError(string.Empty, "Fill in the highlighted fields.");
         if (Hosts.Count == 0) ModelState.AddModelError(string.Empty, "There must be at least one host.");
-        foreach (string name in Hosts.SelectMany(h => h.Services).Select(s => s.Name).Where(n => n.Length > 0).GroupBy(n => n, StringComparer.OrdinalIgnoreCase).Where(g => g.Count() > 1).Select(g => g.Key)) ModelState.AddModelError(string.Empty, $"More than one service is called {name}. Names must be unique, as they're matched to Kuma monitors by name.");
+        foreach (string name in Hosts.SelectMany(h => h.Services).SelectMany(s => s.MonitorNames).Where(n => n.Length > 0).GroupBy(n => n, StringComparer.OrdinalIgnoreCase).Where(g => g.Count() > 1).Select(g => g.Key)) ModelState.AddModelError(string.Empty, $"{name} is used more than once. Service and monitor names must be unique, as they're matched to Kuma monitors by name.");
         if (!ModelState.IsValid)
         {
             LoadTypes();
@@ -88,7 +92,7 @@ public class EditModel(HostStore hostStore, StatusStore statusStore, KumaStatusS
         }
 
         HostStore.Save(Hosts);
-        StatusStore.RemoveExcept(Hosts.SelectMany(h => h.Services).Select(s => s.Name));
+        StatusStore.RemoveExcept(Hosts.SelectMany(h => h.Services).SelectMany(s => s.MonitorNames));
         await KumaStatusService.RefreshAllAsync(cancellationToken);
         return RedirectToPage(new { saved = true });
     }

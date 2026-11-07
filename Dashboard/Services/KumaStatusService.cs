@@ -102,13 +102,14 @@ public class KumaStatusService(IHttpClientFactory httpClientFactory, StatusStore
             Dictionary<string, int> monitorIdsByName = await FetchMonitorIdsByNameAsync(cancellationToken);
             KumaHeartbeatPageResponse heartbeatPage = await HttpClient.GetFromJsonAsync<KumaHeartbeatPageResponse>($"{BaseUrl}/api/status-page/heartbeat/{StatusPageSlug}", KumaJsonOptions, cancellationToken) ?? new();
 
-            foreach (ServiceEntry service in Services)
+            // Each service's own name is a monitor, plus any extra monitors shown as further parts of the same service.
+            foreach (string monitorName in Services.SelectMany(s => s.MonitorNames))
             {
-                if (!monitorIdsByName.TryGetValue(service.Name, out int monitorId))
+                if (!monitorIdsByName.TryGetValue(monitorName, out int monitorId))
                 {
-                    if (UnmatchedServicesWarned.Add(service.Name))
+                    if (UnmatchedServicesWarned.Add(monitorName))
                     {
-                        Logger.LogWarning("No Kuma monitor matches the name of configured service {ServiceName}. Rename the monitor in Kuma to match, or update the service config.", service.Name);
+                        Logger.LogWarning("No Kuma monitor matches the configured name {MonitorName}. Rename the monitor in Kuma to match, or update the service config.", monitorName);
                     }
                     continue;
                 }
@@ -128,10 +129,10 @@ public class KumaStatusService(IHttpClientFactory httpClientFactory, StatusStore
                     Error = isOnline ? null : (string.IsNullOrWhiteSpace(latest.Msg) ? "Service is down." : latest.Msg)
                 };
 
-                StatusStore.Set(service.Name, status);
+                StatusStore.Set(monitorName, status);
                 await HubContext.Clients.All.SendAsync("ServiceStatusUpdated", new
                 {
-                    service.Name,
+                    Name = monitorName,
                     status.IsOnline,
                     status.ResponseTimeMs,
                     status.LastChecked,

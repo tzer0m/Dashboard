@@ -42,12 +42,12 @@ function initDashboardConnection() {
 }
 
 /**
- * Updates a single service card in place when a status push arrives, either from the normal polling cycle or a manual refresh.
- * Matches the card by its data-service-name attribute, and patches the status info shown on the card: badge, tooltip, and response time.
+ * Updates one monitor's badge and response time in place when a status push arrives, either from the normal polling cycle or a manual refresh.
+ * Matches by the monitor name, which is the service name for a service's main monitor, or an extra monitor's own name.
  * Also bumps the page-level "last updated" timestamp, since every update now comes from a full refresh of all services together.
  *
  * @param {Object} status - The status payload broadcast from the server.
- * @param {string} status.name - The service name, used to find the matching card.
+ * @param {string} status.name - The monitor name, used to find the matching badge and response time.
  * @param {boolean} status.isOnline - Whether the service responded successfully.
  * @param {number} status.responseTimeMs - Response time in milliseconds.
  * @param {string} status.lastChecked - ISO timestamp of the check, in UTC.
@@ -56,20 +56,22 @@ function initDashboardConnection() {
 function handleStatusUpdate(status) {
     updateLastUpdatedDisplay(status.lastChecked);
 
-    const card = document.querySelector(`[data-service-name="${status.name}"]`);
-    if (!card) return;
+    // Each monitor has its own badge and response time; a service with extra monitors shows one of each per monitor, main monitor first.
+    const badge = document.querySelector(`.service-card [data-monitor="${status.name}"]`);
+    if (!badge) return;
 
     const isOnline = status.isOnline;
+    const hasExtras = badge.parentElement.children.length > 1;
+    const error = isOnline ? null : (status.error ?? null);
 
-    // Badge state and tooltip
-    const badge = card.querySelector('.badge');
+    // Badge state and tooltip. With extra monitors the tooltip names the monitor, so you can tell which badge is which.
     badge.classList.remove('bg-success', 'bg-danger', 'bg-secondary');
     badge.classList.add(isOnline ? 'bg-success' : 'bg-danger');
     badge.textContent = isOnline ? '✓' : '✕';
-    badge.title = isOnline ? '' : (status.error ?? '');
+    badge.title = hasExtras ? (error ? `${status.name}: ${error}` : status.name) : (error ?? '');
 
     // Response time, colour-coded the same way the server-rendered version is. Hidden when the service is offline, since a response time from a failed check isn't meaningful.
-    const responseTimeEl = card.querySelector('.response-time');
+    const responseTimeEl = document.querySelector(`.service-card [data-monitor-time="${status.name}"]`);
     if (responseTimeEl) {
         responseTimeEl.classList.remove('response-time-fast', 'response-time-moderate', 'response-time-slow');
         if (isOnline) {
@@ -104,7 +106,7 @@ function updateLastUpdatedDisplay(isoTimestamp) {
  * status push arrives, so the summary stays in sync without a full page reload.
  */
 function recomputeStatusSummary() {
-    const badges = document.querySelectorAll('[data-service-name] .badge');
+    const badges = document.querySelectorAll('.service-card [data-monitor]');
     let online = 0;
     let offline = 0;
     let pending = 0;
@@ -151,7 +153,7 @@ function recomputeStatusSummary() {
 function updateHostPills() {
     document.querySelectorAll('.host-pills').forEach(pills => {
         const host = pills.closest('[data-host]').dataset.host;
-        const badges = document.querySelectorAll(`[data-host="${host}"] [data-service-name] .badge`);
+        const badges = document.querySelectorAll(`[data-host="${host}"] .service-card [data-monitor]`);
         const counts = { online: 0, offline: 0, pending: 0 };
 
         badges.forEach(badge => {

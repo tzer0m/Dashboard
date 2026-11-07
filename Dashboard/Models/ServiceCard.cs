@@ -11,9 +11,9 @@ public class ServiceCard
     public ServiceEntry Service { get; set; } = new();
 
     /// <summary>
-    /// Gets or sets the latest health check status, or null if not yet checked.
+    /// Gets or sets the latest status of every monitor, keyed by monitor name.
     /// </summary>
-    public ServiceStatus? Status { get; set; }
+    public IReadOnlyDictionary<string, ServiceStatus> Statuses { get; set; } = new Dictionary<string, ServiceStatus>();
 
     /// <summary>
     /// Gets or sets an optional favicon URL override.

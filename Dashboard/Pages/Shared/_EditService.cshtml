@@ -25,5 +25,6 @@
     <input class="form-control form-control-sm@(Invalid("Port"))" data-field="Port" name="@(Model.Prefix).Port" value="@Model.Service.Port" type="number" min="1" max="65535" placeholder="Port" />
     <input class="form-control form-control-sm" data-field="RepoName" name="@(Model.Prefix).RepoName" value="@Model.Service.RepoName" placeholder="owner/repo" />
     <input class="form-control form-control-sm" data-field="FaviconUrl" name="@(Model.Prefix).FaviconUrl" value="@Model.Service.FaviconUrl" placeholder="Auto" />
+    <input class="form-control form-control-sm" data-field="ExtraMonitors" name="@(Model.Prefix).ExtraMonitors" value="@string.Join(", ", Model.Service.ExtraMonitors ?? [])" placeholder="None" title="Extra Kuma monitor names, separated by commas" />
     <button type="button" class="btn btn-sm btn-outline-danger" data-action="remove-service" title="Delete Service">✕</button>
 </div>

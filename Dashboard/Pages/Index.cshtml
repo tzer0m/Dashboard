@@ -44,9 +44,10 @@
 <div id="host-flow" class="host-flow">
     @foreach (HostEntry host in orderedHosts)
     {
-        int hostOnline = host.Services.Count(s => Model.Statuses.GetValueOrDefault(s.Name)?.IsOnline == true);
-        int hostOffline = host.Services.Count(s => Model.Statuses.GetValueOrDefault(s.Name)?.IsOnline == false);
-        int hostPending = host.Services.Count - hostOnline - hostOffline;
+        List<string> hostMonitors = [.. host.Services.SelectMany(s => s.MonitorNames)];
+        int hostOnline = hostMonitors.Count(m => Model.Statuses.GetValueOrDefault(m)?.IsOnline == true);
+        int hostOffline = hostMonitors.Count(m => Model.Statuses.GetValueOrDefault(m)?.IsOnline == false);
+        int hostPending = hostMonitors.Count - hostOnline - hostOffline;
         <div class="flow-cell" data-host="@host.Host">
             <div class="host-head">
                 <span class="host-name">@host.Host</span>
@@ -64,7 +65,7 @@
                 @await Html.PartialAsync("_ServiceCard", new ServiceCard
                 {
                     Service = service,
-                    Status = Model.Statuses.GetValueOrDefault(service.Name),
+                    Statuses = Model.Statuses,
                     FaviconUrl = service.FaviconUrl
                 })
             </div>

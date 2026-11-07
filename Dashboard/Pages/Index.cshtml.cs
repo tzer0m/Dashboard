@@ -71,7 +71,7 @@ public class IndexModel(StatusStore statusStore, HostStore hostStore) : PageMode
         Statuses = StatusStore.GetAll();
         OnlineCount = Statuses.Values.Count(status => status.IsOnline);
         OfflineCount = Statuses.Values.Count(status => !status.IsOnline);
-        PendingCount = Hosts.Sum(h => h.Services.Count) - Statuses.Count;
+        PendingCount = Hosts.Sum(h => h.Services.Sum(s => s.MonitorNames.Count)) - Statuses.Count;
         OverallStatusClass = OfflineCount == 0 ? "bg-success" : "bg-danger";
         OverallStatusText = OfflineCount == 0 ? "All Online" : $"{OfflineCount} Offline";
         LastUpdated = Statuses.Count > 0 ? Statuses.Values.Max(status => status.LastChecked) : null;

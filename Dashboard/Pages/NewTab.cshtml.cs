@@ -68,7 +68,7 @@ public class NewTabModel(StatusStore statusStore, HostStore hostStore) : PageMod
         Statuses = StatusStore.GetAll();
         OnlineCount = Statuses.Values.Count(status => status.IsOnline);
         OfflineCount = Statuses.Values.Count(status => !status.IsOnline);
-        PendingCount = services.Count - Statuses.Count;
+        PendingCount = services.Sum(s => s.MonitorNames.Count) - Statuses.Count;
         OverallStatusClass = OfflineCount == 0 ? "bg-success" : "bg-danger";
         OverallStatusText = OfflineCount == 0 ? "All Online" : $"{OfflineCount} Offline";
     }
