@@ -11,8 +11,9 @@ namespace Dashboard.Pages;
 /// Initialises a new instance of <see cref="IndexModel"/>.
 /// </remarks>
 /// <param name="statusStore">The singleton status store.</param>
+/// <param name="hostStore">The store holding the hosts and their services.</param>
 /// <param name="configuration">The app configuration.</param>
-public class IndexModel(StatusStore statusStore, IConfiguration configuration) : PageModel
+public class IndexModel(StatusStore statusStore, HostStore hostStore, IConfiguration configuration) : PageModel
 {
     /// <summary>
     /// Stores the current status of all services, grouped by device.
@@ -20,7 +21,12 @@ public class IndexModel(StatusStore statusStore, IConfiguration configuration) :
     private readonly StatusStore StatusStore = statusStore;
 
     /// <summary>
-    /// Contains the configuration for the dashboard, including the list of devices and services to monitor.
+    /// Holds the hosts and their services.
+    /// </summary>
+    private readonly HostStore HostStore = hostStore;
+
+    /// <summary>
+    /// Contains the configuration for the dashboard, including the network diagram URL.
     /// </summary>
     private readonly IConfiguration Configuration = configuration;
 
@@ -70,13 +76,12 @@ public class IndexModel(StatusStore statusStore, IConfiguration configuration) :
     public DateTime? LastUpdated { get; set; }
 
     /// <summary>
-    /// Loads services from config and reads cached statuses.
+    /// Loads hosts from the host store and reads cached statuses.
     /// </summary>
     public void OnGet()
     {
-        // Load the list of hosts and their services from config.
         Response.Headers.CacheControl = "no-store";
-        Hosts = Configuration.GetSection("Hosts").Get<List<HostEntry>>() ?? [];
+        Hosts = HostStore.GetAll();
         Statuses = StatusStore.GetAll();
         DiagramUrl = Configuration.GetSection("Diagram")["Url"] ?? string.Empty;
         OnlineCount = Statuses.Values.Count(status => status.IsOnline);

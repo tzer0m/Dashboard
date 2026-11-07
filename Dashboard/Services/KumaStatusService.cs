@@ -12,9 +12,10 @@ namespace Dashboard.Services;
 /// <param name="httpClientFactory">Factory used to create the named HTTP client for calling Kuma's API.</param>
 /// <param name="statusStore">The singleton store for caching results.</param>
 /// <param name="hubContext">The hub context used to broadcast status updates.</param>
-/// <param name="configuration">The app configuration containing service entries and Kuma connection settings.</param>
+/// <param name="hostStore">The store holding the hosts and their services.</param>
+/// <param name="configuration">The app configuration containing Kuma connection settings.</param>
 /// <param name="logger">The logger instance.</param>
-public class KumaStatusService(IHttpClientFactory httpClientFactory, StatusStore statusStore, IHubContext<ServiceStatusHub> hubContext, IConfiguration configuration, ILogger<KumaStatusService> logger) : BackgroundService
+public class KumaStatusService(IHttpClientFactory httpClientFactory, StatusStore statusStore, IHubContext<ServiceStatusHub> hubContext, HostStore hostStore, IConfiguration configuration, ILogger<KumaStatusService> logger) : BackgroundService
 {
     /// <summary>
     /// Options used to deserialise Kuma's camelCase JSON responses into this project's PascalCase models.
@@ -37,19 +38,14 @@ public class KumaStatusService(IHttpClientFactory httpClientFactory, StatusStore
     private readonly IHubContext<ServiceStatusHub> HubContext = hubContext;
 
     /// <summary>
-    /// List of hosts and their services, loaded from configuration.
+    /// Store holding the hosts and their services, read fresh on each refresh so edits take effect without a restart.
     /// </summary>
-    private readonly List<HostEntry> Hosts = configuration.GetSection("Hosts").Get<List<HostEntry>>() ?? [];
-
-    /// <summary>
-    /// The configured hosts and their services.
-    /// </summary>
-    public IReadOnlyList<HostEntry> HostEntries => Hosts;
+    private readonly HostStore HostStore = hostStore;
 
     /// <summary>
     /// All services across every host, flattened.
     /// </summary>
-    private List<ServiceEntry> Services => [.. Hosts.SelectMany(h => h.Services)];
+    private List<ServiceEntry> Services => [.. HostStore.GetAll().SelectMany(h => h.Services)];
 
     /// <summary>
     /// Logger used to log information and errors.
@@ -82,9 +78,9 @@ public class KumaStatusService(IHttpClientFactory httpClientFactory, StatusStore
     /// <param name="stoppingToken">Token that signals when the host is shutting down.</param>
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        if (Services.Count == 0 || string.IsNullOrEmpty(BaseUrl))
+        if (string.IsNullOrEmpty(BaseUrl))
         {
-            Logger.LogWarning("KumaStatusService is not starting: no services configured or Kuma:BaseUrl is missing.");
+            Logger.LogWarning("KumaStatusService is not starting: Kuma:BaseUrl is missing.");
             return;
         }
 

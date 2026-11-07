@@ -5,6 +5,7 @@ using Dashboard.Services;
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
 builder.Services.AddSingleton<StatusStore>();
+builder.Services.AddSingleton<HostStore>();
 builder.Services.AddHttpClient();
 builder.Services.AddHttpClient("KumaStatusService", client => client.Timeout = TimeSpan.FromSeconds(10));
 builder.Services.AddHttpClient<GitHubBadgeService>();

@@ -11,12 +11,12 @@ namespace Dashboard.Controllers;
 [ApiController]
 [Route("[controller]")]
 [ServiceFilter(typeof(ApiKeyAuthFilter))]
-public sealed class ApiController(KumaStatusService kumaStatusService, GitHubBadgeService gitHubBadgeService, StatusStore statusStore) : ControllerBase
+public sealed class ApiController(HostStore hostStore, GitHubBadgeService gitHubBadgeService, StatusStore statusStore) : ControllerBase
 {
     /// <summary>
-    /// Status service used to retrieve the configured list of services.
+    /// Store used to retrieve the list of hosts and their services.
     /// </summary>
-    private readonly KumaStatusService KumaStatusService = kumaStatusService;
+    private readonly HostStore HostStore = hostStore;
 
     /// <summary>
     /// GitHub badge service used to retrieve deploy badge data for configured services.
@@ -36,7 +36,7 @@ public sealed class ApiController(KumaStatusService kumaStatusService, GitHubBad
     public async Task<ActionResult<List<ServiceInformation>>> GetStatusAsync(CancellationToken cancellationToken)
     {
         List<ServiceInformation> result = [];
-        foreach (HostEntry host in KumaStatusService.HostEntries)
+        foreach (HostEntry host in HostStore.GetAll())
         {
             foreach (ServiceEntry service in host.Services)
             {

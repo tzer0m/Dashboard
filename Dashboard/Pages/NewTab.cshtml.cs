@@ -9,8 +9,8 @@ namespace Dashboard.Pages;
 /// Page model for the Chrome new-tab page, showing a status summary and service links.
 /// </summary>
 /// <param name="statusStore">The singleton status store.</param>
-/// <param name="configuration">The app configuration.</param>
-public class NewTabModel(StatusStore statusStore, IConfiguration configuration) : PageModel
+/// <param name="hostStore">The store holding the hosts and their services.</param>
+public class NewTabModel(StatusStore statusStore, HostStore hostStore) : PageModel
 {
     /// <summary>
     /// Stores the current status of all services.
@@ -18,9 +18,9 @@ public class NewTabModel(StatusStore statusStore, IConfiguration configuration) 
     private readonly StatusStore StatusStore = statusStore;
 
     /// <summary>
-    /// Contains the list of hosts and services to show.
+    /// Holds the hosts and their services.
     /// </summary>
-    private readonly IConfiguration Configuration = configuration;
+    private readonly HostStore HostStore = hostStore;
 
     /// <summary>
     /// Services grouped by type, ordered by type name, populated on GET.
@@ -58,13 +58,12 @@ public class NewTabModel(StatusStore statusStore, IConfiguration configuration) 
     public string OverallStatusText { get; set; } = string.Empty;
 
     /// <summary>
-    /// Loads services from config and reads cached statuses.
+    /// Loads services from the host store and reads cached statuses.
     /// </summary>
     public void OnGet()
     {
         Response.Headers.CacheControl = "no-store";
-        List<HostEntry> hosts = Configuration.GetSection("Hosts").Get<List<HostEntry>>() ?? [];
-        List<ServiceEntry> services = [.. hosts.SelectMany(h => h.Services).OrderBy(s => s.Name)];
+        List<ServiceEntry> services = [.. HostStore.GetAll().SelectMany(h => h.Services).OrderBy(s => s.Name)];
         Groups = [.. services.GroupBy(s => s.Type).OrderBy(g => g.Key).Select(g => new ServiceGroup(g.Key, [.. g]))];
         Statuses = StatusStore.GetAll();
         OnlineCount = Statuses.Values.Count(status => status.IsOnline);
