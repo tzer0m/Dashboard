@@ -40,4 +40,14 @@ public class StatusStore
     {
         return Statuses;
     }
+
+    /// <summary>
+    /// Removes the status of every service whose name isn't in the given list.
+    /// </summary>
+    /// <param name="serviceNames">The names of the services to keep.</param>
+    public void RemoveExcept(IEnumerable<string> serviceNames)
+    {
+        HashSet<string> keep = [.. serviceNames];
+        foreach (string name in Statuses.Keys.Where(name => !keep.Contains(name))) Statuses.TryRemove(name, out _);
+    }
 }

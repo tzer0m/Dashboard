@@ -1,0 +1,30 @@
+﻿@using Dashboard.Models
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@model (ServiceEntry Service, string Prefix)
+@{
+    string Invalid(string field) => ViewData.ModelState.GetFieldValidationState($"{Model.Prefix}.{field}") == ModelValidationState.Invalid ? " is-invalid" : string.Empty;
+    bool isLocal = Model.Service.Access == "Local";
+}
+
+<div class="edit-service" data-service>
+    <input class="form-control form-control-sm@(Invalid("Name"))" data-field="Name" name="@(Model.Prefix).Name" value="@Model.Service.Name" placeholder="Name" />
+    <input class="form-control form-control-sm@(Invalid("Url"))" data-field="Url" name="@(Model.Prefix).Url" value="@Model.Service.Url" placeholder="https://" />
+    <input class="form-control form-control-sm@(Invalid("Type"))" data-field="Type" name="@(Model.Prefix).Type" value="@Model.Service.Type" list="type-options" placeholder="Type" />
+    <select class="form-select form-select-sm" data-field="Access" name="@(Model.Prefix).Access">
+        @if (isLocal)
+        {
+            <option value="Global">Global</option>
+            <option value="Local" selected>Local</option>
+        }
+        else
+        {
+            <option value="Global" selected>Global</option>
+            <option value="Local">Local</option>
+        }
+    </select>
+    <input class="form-control form-control-sm@(Invalid("Port"))" data-field="Port" name="@(Model.Prefix).Port" value="@Model.Service.Port" type="number" min="1" max="65535" placeholder="Port" />
+    <input class="form-control form-control-sm" data-field="RepoName" name="@(Model.Prefix).RepoName" value="@Model.Service.RepoName" placeholder="owner/repo" />
+    <input class="form-control form-control-sm" data-field="FaviconUrl" name="@(Model.Prefix).FaviconUrl" value="@Model.Service.FaviconUrl" placeholder="Auto" />
+    <input class="form-check-input m-auto" data-field="AuthRequired" name="@(Model.Prefix).AuthRequired" value="true" type="checkbox" checked="@Model.Service.AuthRequired" title="Auth Required" />
+    <button type="button" class="btn btn-sm btn-outline-danger" data-action="remove-service" title="Delete Service">✕</button>
+</div>

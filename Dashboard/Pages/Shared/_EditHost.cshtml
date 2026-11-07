@@ -1,0 +1,39 @@
+﻿@using Dashboard.Models
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@model (HostEntry Host, string Prefix, bool Open)
+@{
+    string Invalid(string field) => ViewData.ModelState.GetFieldValidationState($"{Model.Prefix}.{field}") == ModelValidationState.Invalid ? " is-invalid" : string.Empty;
+    int count = Model.Host.Services.Count;
+}
+
+<details class="edit-host" data-host open="@Model.Open">
+    <summary class="edit-host-summary">
+        <span class="edit-host-title">@(string.IsNullOrEmpty(Model.Host.Host) ? "New Host" : Model.Host.Host)</span>
+        <span class="text-secondary small" data-service-count>@count @(count == 1 ? "Service" : "Services")</span>
+    </summary>
+    <div class="edit-host-body">
+        <div class="edit-host-fields">
+            <label class="small text-secondary">Name<input class="form-control form-control-sm@(Invalid("Host"))" data-host-field="Host" name="@(Model.Prefix).Host" value="@Model.Host.Host" /></label>
+            <label class="small text-secondary">IP<input class="form-control form-control-sm@(Invalid("Ip"))" data-host-field="Ip" name="@(Model.Prefix).Ip" value="@Model.Host.Ip" /></label>
+            <button type="button" class="btn btn-sm btn-outline-danger ms-auto" data-action="remove-host">Delete Host</button>
+        </div>
+        <div class="edit-service-head">
+            <span>Name</span>
+            <span>URL</span>
+            <span>Type</span>
+            <span>Access</span>
+            <span>Port</span>
+            <span>Repo</span>
+            <span>Favicon URL</span>
+            <span class="text-center">Auth</span>
+            <span></span>
+        </div>
+        <div data-services>
+            @for (int s = 0; s < Model.Host.Services.Count; s++)
+            {
+                @await Html.PartialAsync("_EditService", (Model.Host.Services[s], $"{Model.Prefix}.Services[{s}]"))
+            }
+        </div>
+        <button type="button" class="btn btn-sm btn-outline-secondary" data-action="add-service">Add Service</button>
+    </div>
+</details>

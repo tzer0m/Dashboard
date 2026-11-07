@@ -1,0 +1,54 @@
+﻿@page "/edit"
+@model EditModel
+@using Dashboard.Models
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@{
+    ViewData["Title"] = "Edit Services";
+    bool failed = !ViewData.ModelState.IsValid;
+    List<ModelError> errors = [.. ViewData.ModelState[string.Empty]?.Errors ?? []];
+}
+
+<form method="post" id="edit-form">
+    <header class="dash-bar">
+        <span class="edit-title">Edit Services</span>
+        @if (Model.Saved)
+        {
+            <span class="badge bg-success">Saved</span>
+        }
+        <div class="dash-bar-meta justify-content-end">
+            <a href="/" class="btn btn-sm btn-outline-secondary">Back to Dashboard</a>
+            <button type="submit" class="btn btn-sm btn-primary">Save</button>
+        </div>
+    </header>
+
+    @if (failed)
+    {
+        <ul class="edit-errors text-danger small">
+            @foreach (ModelError error in errors)
+            {
+                <li>@error.ErrorMessage</li>
+            }
+        </ul>
+    }
+
+    <div id="edit-hosts">
+        @for (int h = 0; h < Model.Hosts.Count; h++)
+        {
+            @await Html.PartialAsync("_EditHost", (Model.Hosts[h], $"Hosts[{h}]", failed))
+        }
+    </div>
+    <button type="button" class="btn btn-sm btn-outline-secondary" data-action="add-host">Add Host</button>
+
+    <datalist id="type-options">
+        @foreach (string type in Model.Types)
+        {
+            <option value="@type"></option>
+        }
+    </datalist>
+    <template id="host-template">@await Html.PartialAsync("_EditHost", (new HostEntry(), string.Empty, true))</template>
+    <template id="service-template">@await Html.PartialAsync("_EditService", (new ServiceEntry(), string.Empty))</template>
+</form>
+
+@section Scripts {
+    <script src="~/js/edit.js" asp-append-version="true"></script>
+}
