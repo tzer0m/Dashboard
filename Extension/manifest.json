@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Tzer Dashboard New Tab",
+  "name": "Dashboard New Tab",
   "version": "1.0.0",
   "description": "Shows the homelab dashboard's service links and status in every new tab.",
   "chrome_url_overrides": { "newtab": "newtab.html" },
