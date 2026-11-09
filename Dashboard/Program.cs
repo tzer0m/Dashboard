@@ -15,6 +15,8 @@ builder.Services.AddHttpClient("KumaStatusService", client => client.Timeout = T
 builder.Services.AddHttpClient<GitHubBadgeService>();
 builder.Services.AddSingleton<KumaStatusService>();
 builder.Services.AddHostedService(sp => sp.GetRequiredService<KumaStatusService>());
+builder.Services.AddSingleton<BadgeStore>();
+builder.Services.AddHostedService<GitHubBadgeRefreshService>();
 builder.Services.AddMemoryCache();
 builder.Services.AddScoped<ApiKeyAuthFilter>();
 builder.Services.AddControllers();

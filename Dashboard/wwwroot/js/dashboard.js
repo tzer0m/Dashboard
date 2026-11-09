@@ -37,8 +37,10 @@ function initDashboardConnection() {
         .build();
 
     connection.on("ServiceStatusUpdated", handleStatusUpdate);
+    connection.on("RepoBadgesUpdated", applyRepoBadges);
+    connection.onreconnected(loadRepoBadges);
 
-    connection.start().catch(err => console.error("SignalR connection failed:", err));
+    connection.start().then(loadRepoBadges).catch(err => console.error("SignalR connection failed:", err));
 }
 
 /**
@@ -194,25 +196,30 @@ async function refreshAll() {
 document.addEventListener("DOMContentLoaded", initDashboardConnection);
 
 /**
- * Fills in every deploy status pill on the page by reading the latest GitHub Actions result from this app's own /Badge endpoint, so the pill renders without relying on shields.io. Runs on load and then once a minute.
+ * Fills in deploy status pills from a map of repo to badge, either pushed by the server over SignalR when a repo's latest GitHub Actions result changes, or fetched once when the connection opens.
+ *
+ * @param {Object<string, {message: string, color: string}>} badges - Badge status keyed by "owner/repo".
  */
-async function refreshRepoBadges() {
-    const pills = document.querySelectorAll('.repo-badge[data-repo]');
-    for (const pill of pills) {
-        try {
-            const response = await fetch(`/Badge?repo=${encodeURIComponent(pill.dataset.repo)}`);
-            if (!response.ok) continue;
-            const badge = await response.json();
+function applyRepoBadges(badges) {
+    for (const [repo, badge] of Object.entries(badges)) {
+        document.querySelectorAll('.repo-badge[data-repo]').forEach(pill => {
+            if (pill.dataset.repo.toLowerCase() !== repo.toLowerCase()) return;
             pill.querySelector('.repo-badge-text').textContent = badge.message;
             pill.style.backgroundColor = `#${badge.color}`;
-        } catch (err) {
-            console.error(err);
-        }
+        });
     }
 }
 
-document.addEventListener("DOMContentLoaded", refreshRepoBadges);
-setInterval(refreshRepoBadges, 60000);
+/**
+ * Asks the hub for every repo's current deploy status, so the pills fill in straight away on load and after a reconnect rather than waiting for the next change.
+ */
+async function loadRepoBadges() {
+    try {
+        applyRepoBadges(await connection.invoke("GetRepoBadges"));
+    } catch (err) {
+        console.error(err);
+    }
+}
 
 // How far, in pixels, each host's outline is pulled in from the column grid lines, which is what leaves a gap between neighbouring hosts side by side.
 const OutlineInsetX = 2.5;
