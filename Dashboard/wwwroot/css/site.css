@@ -61,6 +61,32 @@ body:has(#host-flow):not(.scaled) main {
     stroke-width: 1;
 }
 
+/* Each host's box is tinted with its Kuma tag colour, so devices are easier to tell apart. Pre-mixed hex (45% tag colour over the default fill) rather than color-mix(), for older browsers. */
+.host-outline[data-host="Brienne"] {
+    fill: #286b58;
+}
+
+.host-outline[data-host="Davos"] {
+    fill: #88393a;
+}
+
+.host-outline[data-host="Jorah"],
+.host-outline[data-host="TzerDM2"] {
+    fill: #474e56;
+}
+
+.host-outline[data-host="Robert"] {
+    fill: #494790;
+}
+
+.host-outline[data-host="Sansa"] {
+    fill: #875d2c;
+}
+
+.host-outline[data-host="Tyrion"] {
+    fill: #365493;
+}
+
 .host-flow {
     position: relative;
     z-index: 1;

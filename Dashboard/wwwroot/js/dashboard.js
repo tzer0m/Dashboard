@@ -340,6 +340,7 @@ function outlineHostGroups() {
         const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
         path.setAttribute('d', pathData);
         path.setAttribute('class', 'host-outline');
+        path.setAttribute('data-host', host);
         svg.appendChild(path);
     });
 }
